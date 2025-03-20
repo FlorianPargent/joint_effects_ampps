@@ -1,0 +1,379 @@
+---
+title: "Joint effects"
+authors: "Lukas Junker, Ramona Schoedel, & Florian Pargent"
+date: today
+format: html
+---
+
+# Toy example: The effect of smartphone usage on sleep quality 
+
+# Demonstration in R
+
+## Load packages
+
+```{r}
+#| message: false
+#| warning: false
+
+library(tidyverse)
+library(dagitty)
+library(brms)
+library(cmdstanr)
+library(tidybayes)
+```
+
+## Specify the data generating process
+
+### Draw the DAG
+
+```{r}
+#| code-fold: true
+dag <- dagitty('dag{
+  A1 -> L <- U
+  A1 -> A2 <- L
+  A1 -> Y <- A2
+  L -> Y <- U
+  A1[pos="0,2"]
+  A2[pos="1,2"]
+  Y[pos="1.5,1.5"]
+  L[pos="0.5,1.5"]
+  U[pos="1,1"]
+  }')
+plot(dag)
+```
+
+### Specify functional relationships
+
+```{r}
+b_L_A1 <- 1
+b_L_U <- 1
+b_A2_A1 <- -3
+b_A2_L <- 0.5
+b_A2_U <- 0
+b_Y_A1 <- 0
+b_Y_A2 <- -3
+b_Y_L <- -1
+b_Y_U <- -1
+
+b_L_A1 <- 1
+b_L_U <- 0
+b_A2_A1 <- -3
+b_A2_L <- 2
+b_A2_U <- 0
+b_Y_A1 <- 1
+b_Y_A2 <- -5
+b_Y_L <- -1
+b_Y_U <- 0
+
+
+f_U <- function(){
+  rnorm(n)}
+f_A1 <- function(){
+  rbinom(n, size = 1, prob = 0.5)}
+f_L <- function(A1, U){
+  rnorm(n, mean = b_L_A1 * A1 + b_L_U * U, sd = 1)}
+f_A2 <- function(A1, L){
+  rbinom(n, size = 1, prob = plogis(b_A2_A1 * A1 + b_A2_L* L + b_A2_U * U))}
+f_Y <- function(A1, A2, L, U){
+  rnorm(n, mean = b_Y_A1 * A1 + b_Y_A2 * A2 + b_Y_L * L + b_Y_U * U, sd = 0.1)} 
+```
+
+## Simulate data
+
+```{r}
+n <- 2000
+set.seed(42)
+
+U <- f_U()
+A1 <- f_A1()
+L <- f_L(A1, U)
+A2 <- f_A2(A1, L)
+Y <- f_Y(A1, A2, L, U)
+
+dat <- data.frame(A1, A2, L, Y)
+```
+
+## Determine the true causal effects
+
+### Simulate total effect of A1
+
+$E(Y^{a_1=1}) - E(Y^{a_1=1})$
+
+```{r}
+n <- 1000000
+set.seed(42)
+
+# Y^{a_1=1}
+
+U <- f_U()
+A1 <- rep(1, n) # intervention
+L <- f_L(A1, U)
+A2 <- f_A2(A1, L)
+Y_1 <- f_Y(A1, A2, L, U)
+
+# Y^{a_1=1}
+
+U <- f_U()
+A1 <- rep(0, n) # intervention
+L <- f_L(A1, U)
+A2 <- f_A2(A1, L)
+Y_0 <- f_Y(A1, A2, L, U)
+
+# E(Y^{a_1=1}) - E(Y^{a_1=1})
+(total <- mean(Y_1) - mean(Y_0))
+```
+
+
+### Simulate joint effect "always - never"
+
+$E(Y_{11}) - E(Y_{00})$
+
+```{r}
+n <- 1000000
+set.seed(42)
+
+# Y_11
+
+U <- f_U()
+A1 <- rep(1, n) # intervention
+L <- f_L(A1, U)
+A2 <- rep(1, n) # intervention
+Y_11 <- f_Y(A1, A2, L, U)
+
+# Y_00
+
+U <- f_U()
+A1 <- rep(0, n) # intervention
+L <- f_L(A1, U)
+A2 <-  rep(0, n) # intervention
+Y_00 <- f_Y(A1, A2, L, U)
+
+# E(Y_11) - E(Y_00)
+(always_never <- mean(Y_11) - mean(Y_00))
+```
+
+
+### Simulate joint effect "no future use"
+
+$E(Y_{10}) - E(Y_{00})$
+
+```{r}
+n <- 1000000
+set.seed(42)
+
+# Y_10
+
+U <- f_U()
+A1 <- rep(1, n) # intervention
+L <- f_L(A1, U)
+A2 <- rep(0, n) # intervention
+Y_10 <- f_Y(A1, A2, L, U)
+
+# Y_00
+
+U <- f_U()
+A1 <- rep(0, n) # intervention
+L <- f_L(A1, U)
+A2 <- rep(0, n) # intervention
+Y_00 <- f_Y(A1, A2, L, U)
+
+# E(Y_10) - E(Y_00)
+(no_future <- mean(Y_10) - mean(Y_00))
+```
+
+
+### Simulate controlled direct effect "no future use, average rumination"
+
+$E(Y_{10} | L = 0) - E(Y_{00} | L = 0)$
+
+```{r}
+n <- 1000000
+set.seed(42)
+
+# Y_10 | L = 0
+
+U <- f_U()
+A1 <- rep(1, n) # intervention
+L <- rep(0, n) # intervention
+A2 <- rep(0, n) # intervention
+Y_10 <- f_Y(A1, A2, L, U)
+
+# Y_00 | L = 0 
+
+U <- f_U()
+A1 <- rep(0, n) # intervention
+L <-  rep(0, n) # intervention
+A2 <-  rep(0, n) # intervention
+Y_00 <- f_Y(A1, A2, L, U)
+
+# E(Y_10 | L = 0) - E(Y_00 | L = 0)
+(direct <- mean(Y_10) - mean(Y_00))
+```
+
+
+### BONUS: Simulate natural direct effect "no future use"
+
+$E(Y_{10} | L_0) - E(Y_{00} | L_0)$
+
+```{r}
+n <- 1000000
+set.seed(42)
+
+# Y_10 | L_0
+
+U <- f_U()
+A1 <- rep(1, n) # intervention
+L <- f_L(A1 = rep(0, n), U)
+A2 <- rep(0, n) # intervention
+Y_10 <- f_Y(A1, A2, L, U)
+
+# Y_00 | L_0 
+
+U <- f_U()
+A1 <- rep(0, n) # intervention
+L <-  f_L(A1, U)
+A2 <-  rep(0, n) # intervention
+Y_00 <- f_Y(A1, A2, L, U)
+
+# E(Y_10 | L = 0) - E(Y_00 | L = 0)
+(direct_n <- mean(Y_10) - mean(Y_00))
+```
+
+### BONUS: Simulate natural direct effect "always - never"
+
+$E(Y_{11} | L_0) - E(Y_{00} | L_0)$
+
+
+```{r}
+n <- 1000000
+set.seed(42)
+
+# Y_10 | L_0
+
+U <- f_U()
+A1 <- rep(1, n) # intervention
+L <- f_L(A1 = rep(0, n), U)
+A2 <- rep(1, n) # intervention
+Y_11 <- f_Y(A1, A2, L, U)
+
+# Y_00 | L_0 
+
+U <- f_U()
+A1 <- rep(0, n) # intervention
+L <-  f_L(A1, U)
+A2 <-  rep(0, n) # intervention
+Y_00 <- f_Y(A1, A2, L, U)
+
+# E(Y_11 | L_0) - E(Y_00 | L_0)
+(direct_n_always_never <- mean(Y_11) - mean(Y_00))
+```
+
+
+### BONUS: Simulate natural direct effect of A1
+
+$E(Y_{1} | L_0, A_{20}) - E(Y_{0} | L_0, A_{20})$
+
+```{r}
+n <- 1000000
+set.seed(42)
+
+# Y_10 | L_0, A_20
+
+U <- f_U()
+A1 <- rep(1, n) # intervention
+L <- f_L(A1 = rep(0, n), U)
+A2 <- f_A2(A1 = rep(0, n), L)
+Y_10 <- f_Y(A1, A2, L, U)
+
+# Y_00 | L_0, A_20
+
+U <- f_U()
+A1 <- rep(0, n) # intervention
+L <-  f_L(A1, U)
+A2 <- f_A2(A1, L)
+Y_00 <- f_Y(A1, A2, L, U)
+
+# E(Y_10 | L = 0) - E(Y_00 | L = 0)
+(direct_n_a1 <- mean(Y_10) - mean(Y_00))
+```
+
+
+## Fit statistical models with brms
+
+```{r}
+#| message: false
+
+set.seed(42)
+fit0 <- brm(Y ~ A1,
+  data = dat, chains = 4, cores = 4, backend = "cmdstanr")
+summary(fit0)
+
+set.seed(42)
+bf_L <- bf(L ~ A1)
+bf_Y <- bf(Y ~ A1 + A2 + L)
+fit <- brm(bf_L + bf_Y + set_rescor(FALSE),
+  data = dat, chains = 4, cores = 4, backend = "cmdstanr")
+summary(fit)
+
+set.seed(42)
+fit2 <- brm(Y ~ A1 + A2 + L,
+  data = dat, chains = 4, cores = 4, backend = "cmdstanr")
+summary(fit2)
+```
+
+## Estimate causal effects
+
+```{r}
+params0 <- tidy_draws(fit0)
+params <- tidy_draws(fit)
+params2 <- tidy_draws(fit2)
+
+# Y_1 - Y_0
+total_est <- params0 |> 
+  select(b_A1) |>
+  summarise_draws()
+
+# Y_11 - Y_00
+always_never_est <- params |> 
+  mutate(E_Y_11 = b_Y_Intercept + b_Y_A1 + (b_L_Intercept + b_L_A1)*b_Y_L + b_Y_A2,
+    E_Y_00 = b_Y_Intercept + (b_L_Intercept)*b_Y_L) |>
+  mutate(E_Y_diff = E_Y_11 - E_Y_00) |>
+  select(E_Y_diff) |>
+  summarise_draws()
+
+# Y_10 - Y_00
+no_future_est <- params |> 
+  mutate(E_Y_10 = b_Y_Intercept + b_Y_A1 + (b_L_Intercept + b_L_A1)*b_Y_L,
+    E_Y_00 = b_Y_Intercept + (b_L_Intercept)*b_Y_L) |>
+  mutate(E_Y_diff = E_Y_10 - E_Y_00) |>
+  select(E_Y_diff) |>
+  summarise_draws()
+
+# Y_10 - Y_00 | L = 0
+direct_est <- params2 |> 
+  select(b_A1) |>
+  summarise_draws()
+```
+
+## Compare true causal effects with estimates
+
+```{r}
+#| code-fold: true
+
+table <- tribble(
+  ~"effect"           ,~"true effect" ,~"point estimate (med)"  ,~"ci (q5)"           ,~"ci (q95)",
+  "total"             , total         , total_est$median        , total_est$q5        , total_est$q95        ,
+  "always - never"    , always_never  , always_never_est$median , always_never_est$q5 , always_never_est$q95 ,
+  "no future use"     , no_future     , no_future_est$median    , no_future_est$q5    , no_future_est$q95    ,
+  "controlled direct" , direct        , direct_est$median       , direct_est$q5       , direct_est$q95
+)
+knitr::kable(table)
+```
+
+As can be seen from the DAG, the estimate for the controlled direct effect must be biased. The CDE could only be estimated without bias, if the confounder U had no effect. 
+
+All other effects can be identified and be estimated without bias (at least in theory). However, note that this is only true for our very specific DAG. If (for example), U would have a direct causal effect on A2, only the total effect but none of the others could be identified and be estimated without bias.
+You could verify this by changing the value of the variable `b_A2_U <- -1.5` in the functional relationship code and repeat the simulation. 
+
+# References
+
