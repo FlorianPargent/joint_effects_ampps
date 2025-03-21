@@ -53,18 +53,20 @@ b_A2_U <- 0
 b_Y_A1 <- -0.1
 b_Y_A2 <- -3
 b_Y_L <- -1
+b_Y_A1A2 <- -0.5
 b_Y_U <- -1
+
 
 f_U <- function(){
   rnorm(n)}
 f_A1 <- function(){
   rbinom(n, size = 1, prob = 0.5)}
 f_L <- function(A1, U){
-  rnorm(n, mean = b_L_A1 * A1 + b_L_U * U, sd = 1)}
+  rnorm(n, mean = 1 + b_L_A1 * A1 + b_L_U * U, sd = 1)}
 f_A2 <- function(A1, L){
-  rbinom(n, size = 1, prob = plogis(b_A2_A1 * A1 + b_A2_L* L + b_A2_U * U))}
+  rbinom(n, size = 1, prob = plogis(2 + b_A2_A1 * A1 + b_A2_L* L + b_A2_U * U))}
 f_Y <- function(A1, A2, L, U){
-  rnorm(n, mean = b_Y_A1 * A1 + b_Y_A2 * A2 + b_Y_L * L + b_Y_U * U, sd = 0.1)} 
+  rnorm(n, mean = 3 + b_Y_A1 * A1 + b_Y_A2 * A2 + b_Y_A1A2 * A1 * A2 + b_Y_L * L + b_Y_U * U, sd = 0.1)} 
 ```
 
 ## Simulate data
@@ -274,7 +276,7 @@ summary(fit_total)
 
 set.seed(42)
 bf_L <- bf(L ~ A1)
-bf_Y <- bf(Y ~ A1 + A2 + L)
+bf_Y <- bf(Y ~ A1 + A2 + A1:A2 + L)
 fit_joint <- brm(bf_L + bf_Y + set_rescor(FALSE),
   data = dat, chains = 4, cores = 4, backend = "cmdstanr")
 summary(fit_joint)
@@ -294,7 +296,7 @@ total_A1_est <- params_total |>
 
 # joint effect always - never
 joint_always_est <- params_joint |> 
-  mutate(E_Y_11 = b_Y_Intercept + b_Y_A1 + (b_L_Intercept + b_L_A1)*b_Y_L + b_Y_A2,
+  mutate(E_Y_11 = b_Y_Intercept + b_Y_A1 + (b_L_Intercept + b_L_A1)*b_Y_L + b_Y_A2 + `b_Y_A1:A2`,
     E_Y_00 = b_Y_Intercept + (b_L_Intercept)*b_Y_L) |>
   mutate(E_Y_diff = E_Y_11 - E_Y_00) |>
   select(E_Y_diff) |>
@@ -318,9 +320,9 @@ direct_early_est <- params_joint |>
 
 # direct effect always - never
 direct_always_est <- params_joint |> 
-  mutate(E_Y_10 = b_Y_Intercept + b_Y_A1 + (b_L_Intercept)*b_Y_L + b_Y_A2,
+  mutate(E_Y_11 = b_Y_Intercept + b_Y_A1 + (b_L_Intercept)*b_Y_L + b_Y_A2 + `b_Y_A1:A2`,
     E_Y_00 = b_Y_Intercept + (b_L_Intercept)*b_Y_L) |>
-  mutate(E_Y_diff = E_Y_10 - E_Y_00) |>
+  mutate(E_Y_diff = E_Y_11 - E_Y_00) |>
   select(E_Y_diff) |>
   summarise_draws()
 
