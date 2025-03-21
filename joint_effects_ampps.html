@@ -206,7 +206,8 @@ window.Quarto = {
 <span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>f_A2 <span class="ot">&lt;-</span> <span class="cf">function</span>(A1, L){</span>
 <span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rbinom</span>(n, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> <span class="fu">plogis</span>(<span class="dv">2</span> <span class="sc">+</span> b_A2_A1 <span class="sc">*</span> A1 <span class="sc">+</span> b_A2_L<span class="sc">*</span> L <span class="sc">+</span> b_A2_U <span class="sc">*</span> U))}</span>
 <span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>f_Y <span class="ot">&lt;-</span> <span class="cf">function</span>(A1, A2, L, U){</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rnorm</span>(n, <span class="at">mean =</span> <span class="dv">3</span> <span class="sc">+</span> b_Y_A1 <span class="sc">*</span> A1 <span class="sc">+</span> b_Y_A2 <span class="sc">*</span> A2 <span class="sc">+</span> b_Y_A1A2 <span class="sc">*</span> A1 <span class="sc">*</span> A2 <span class="sc">+</span> b_Y_L <span class="sc">*</span> L <span class="sc">+</span> b_Y_U <span class="sc">*</span> U, <span class="at">sd =</span> <span class="fl">0.1</span>)} </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rnorm</span>(n, <span class="at">mean =</span> <span class="dv">3</span> <span class="sc">+</span> b_Y_A1 <span class="sc">*</span> A1 <span class="sc">+</span> b_Y_A2 <span class="sc">*</span> A2 <span class="sc">+</span> b_Y_A1A2 <span class="sc">*</span> A1 <span class="sc">*</span> A2 <span class="sc">+</span> b_Y_L <span class="sc">*</span> L <span class="sc">+</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>      b_Y_U <span class="sc">*</span> U, <span class="at">sd =</span> <span class="fl">0.1</span>)} </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 </section>
@@ -229,7 +230,7 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="determine-the-true-causal-effects">Determine the true causal effects</h2>
 <section id="simulate-total-effect-of-a1" class="level3">
 <h3 class="anchored" data-anchor-id="simulate-total-effect-of-a1">Simulate total effect of A1</h3>
-<p><span class="math inline">\(E(Y^{a_1=1}) - E(Y^{a_1=1})\)</span></p>
+<p><span class="math inline">\(E(Y^{a_1=1}) - E(Y^{a_1=0})\)</span></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">1000000</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
@@ -684,6 +685,7 @@ Chain 1 Iteration:  900 / 2000 [ 45%]  (Warmup)
 Chain 1 Iteration: 1000 / 2000 [ 50%]  (Warmup) 
 Chain 1 Iteration: 1001 / 2000 [ 50%]  (Sampling) 
 Chain 1 Iteration: 1100 / 2000 [ 55%]  (Sampling) 
+Chain 1 Iteration: 1200 / 2000 [ 60%]  (Sampling) 
 Chain 2 Iteration:    1 / 2000 [  0%]  (Warmup) 
 Chain 2 Iteration:  100 / 2000 [  5%]  (Warmup) 
 Chain 2 Iteration:  200 / 2000 [ 10%]  (Warmup) 
@@ -697,6 +699,7 @@ Chain 2 Iteration:  900 / 2000 [ 45%]  (Warmup)
 Chain 2 Iteration: 1000 / 2000 [ 50%]  (Warmup) 
 Chain 2 Iteration: 1001 / 2000 [ 50%]  (Sampling) 
 Chain 2 Iteration: 1100 / 2000 [ 55%]  (Sampling) 
+Chain 2 Iteration: 1200 / 2000 [ 60%]  (Sampling) 
 Chain 3 Iteration:    1 / 2000 [  0%]  (Warmup) 
 Chain 3 Iteration:  100 / 2000 [  5%]  (Warmup) 
 Chain 3 Iteration:  200 / 2000 [ 10%]  (Warmup) 
@@ -716,7 +719,7 @@ Chain 4 Iteration:  500 / 2000 [ 25%]  (Warmup)
 Chain 4 Iteration:  600 / 2000 [ 30%]  (Warmup) 
 Chain 4 Iteration:  700 / 2000 [ 35%]  (Warmup) 
 Chain 4 Iteration:  800 / 2000 [ 40%]  (Warmup) 
-Chain 1 Iteration: 1200 / 2000 [ 60%]  (Sampling) 
+Chain 4 Iteration:  900 / 2000 [ 45%]  (Warmup) 
 Chain 1 Iteration: 1300 / 2000 [ 65%]  (Sampling) 
 Chain 1 Iteration: 1400 / 2000 [ 70%]  (Sampling) 
 Chain 1 Iteration: 1500 / 2000 [ 75%]  (Sampling) 
@@ -724,7 +727,7 @@ Chain 1 Iteration: 1600 / 2000 [ 80%]  (Sampling)
 Chain 1 Iteration: 1700 / 2000 [ 85%]  (Sampling) 
 Chain 1 Iteration: 1800 / 2000 [ 90%]  (Sampling) 
 Chain 1 Iteration: 1900 / 2000 [ 95%]  (Sampling) 
-Chain 2 Iteration: 1200 / 2000 [ 60%]  (Sampling) 
+Chain 1 Iteration: 2000 / 2000 [100%]  (Sampling) 
 Chain 2 Iteration: 1300 / 2000 [ 65%]  (Sampling) 
 Chain 2 Iteration: 1400 / 2000 [ 70%]  (Sampling) 
 Chain 2 Iteration: 1500 / 2000 [ 75%]  (Sampling) 
@@ -741,7 +744,6 @@ Chain 3 Iteration: 1400 / 2000 [ 70%]  (Sampling)
 Chain 3 Iteration: 1500 / 2000 [ 75%]  (Sampling) 
 Chain 3 Iteration: 1600 / 2000 [ 80%]  (Sampling) 
 Chain 3 Iteration: 1700 / 2000 [ 85%]  (Sampling) 
-Chain 4 Iteration:  900 / 2000 [ 45%]  (Warmup) 
 Chain 4 Iteration: 1000 / 2000 [ 50%]  (Warmup) 
 Chain 4 Iteration: 1001 / 2000 [ 50%]  (Sampling) 
 Chain 4 Iteration: 1100 / 2000 [ 55%]  (Sampling) 
@@ -749,13 +751,12 @@ Chain 4 Iteration: 1200 / 2000 [ 60%]  (Sampling)
 Chain 4 Iteration: 1300 / 2000 [ 65%]  (Sampling) 
 Chain 4 Iteration: 1400 / 2000 [ 70%]  (Sampling) 
 Chain 4 Iteration: 1500 / 2000 [ 75%]  (Sampling) 
-Chain 1 Iteration: 2000 / 2000 [100%]  (Sampling) 
+Chain 4 Iteration: 1600 / 2000 [ 80%]  (Sampling) 
 Chain 1 finished in 0.3 seconds.
 Chain 2 Iteration: 2000 / 2000 [100%]  (Sampling) 
 Chain 3 Iteration: 1800 / 2000 [ 90%]  (Sampling) 
 Chain 3 Iteration: 1900 / 2000 [ 95%]  (Sampling) 
 Chain 3 Iteration: 2000 / 2000 [100%]  (Sampling) 
-Chain 4 Iteration: 1600 / 2000 [ 80%]  (Sampling) 
 Chain 4 Iteration: 1700 / 2000 [ 85%]  (Sampling) 
 Chain 4 Iteration: 1800 / 2000 [ 90%]  (Sampling) 
 Chain 4 Iteration: 1900 / 2000 [ 95%]  (Sampling) 
@@ -766,7 +767,7 @@ Chain 4 finished in 0.3 seconds.
 
 All 4 chains finished successfully.
 Mean chain execution time: 0.3 seconds.
-Total execution time: 0.5 seconds.</code></pre>
+Total execution time: 0.4 seconds.</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_joint)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -814,40 +815,42 @@ scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
 <span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a><span class="co"># joint effect always - never</span></span>
 <span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>joint_always_est <span class="ot">&lt;-</span> params_joint <span class="sc">|&gt;</span> </span>
-<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">E_Y_11 =</span> b_Y_Intercept <span class="sc">+</span> b_Y_A1 <span class="sc">+</span> (b_L_Intercept <span class="sc">+</span> b_L_A1)<span class="sc">*</span>b_Y_L <span class="sc">+</span> b_Y_A2 <span class="sc">+</span> <span class="st">`</span><span class="at">b_Y_A1:A2</span><span class="st">`</span>,</span>
-<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">E_Y_00 =</span> b_Y_Intercept <span class="sc">+</span> (b_L_Intercept)<span class="sc">*</span>b_Y_L) <span class="sc">|&gt;</span></span>
-<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">E_Y_diff =</span> E_Y_11 <span class="sc">-</span> E_Y_00) <span class="sc">|&gt;</span></span>
-<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(E_Y_diff) <span class="sc">|&gt;</span></span>
-<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise_draws</span>()</span>
-<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a><span class="co"># joint effect early use</span></span>
-<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>joint_early_est <span class="ot">&lt;-</span> params_joint <span class="sc">|&gt;</span> </span>
-<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">E_Y_10 =</span> b_Y_Intercept <span class="sc">+</span> b_Y_A1 <span class="sc">+</span> (b_L_Intercept <span class="sc">+</span> b_L_A1)<span class="sc">*</span>b_Y_L,</span>
-<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">E_Y_00 =</span> b_Y_Intercept <span class="sc">+</span> (b_L_Intercept)<span class="sc">*</span>b_Y_L) <span class="sc">|&gt;</span></span>
-<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">E_Y_diff =</span> E_Y_10 <span class="sc">-</span> E_Y_00) <span class="sc">|&gt;</span></span>
-<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(E_Y_diff) <span class="sc">|&gt;</span></span>
-<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise_draws</span>()</span>
-<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a><span class="co"># direct effect early use</span></span>
-<span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a>direct_early_est <span class="ot">&lt;-</span> params_joint <span class="sc">|&gt;</span> </span>
-<span id="cb29-28"><a href="#cb29-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">E_Y_10 =</span> b_Y_Intercept <span class="sc">+</span> b_Y_A1 <span class="sc">+</span> (b_L_Intercept)<span class="sc">*</span>b_Y_L,</span>
-<span id="cb29-29"><a href="#cb29-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">E_Y_00 =</span> b_Y_Intercept <span class="sc">+</span> (b_L_Intercept)<span class="sc">*</span>b_Y_L) <span class="sc">|&gt;</span></span>
-<span id="cb29-30"><a href="#cb29-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">E_Y_diff =</span> E_Y_10 <span class="sc">-</span> E_Y_00) <span class="sc">|&gt;</span></span>
-<span id="cb29-31"><a href="#cb29-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(E_Y_diff) <span class="sc">|&gt;</span></span>
-<span id="cb29-32"><a href="#cb29-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise_draws</span>()</span>
-<span id="cb29-33"><a href="#cb29-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-34"><a href="#cb29-34" aria-hidden="true" tabindex="-1"></a><span class="co"># direct effect always - never</span></span>
-<span id="cb29-35"><a href="#cb29-35" aria-hidden="true" tabindex="-1"></a>direct_always_est <span class="ot">&lt;-</span> params_joint <span class="sc">|&gt;</span> </span>
-<span id="cb29-36"><a href="#cb29-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">E_Y_11 =</span> b_Y_Intercept <span class="sc">+</span> b_Y_A1 <span class="sc">+</span> (b_L_Intercept)<span class="sc">*</span>b_Y_L <span class="sc">+</span> b_Y_A2 <span class="sc">+</span> <span class="st">`</span><span class="at">b_Y_A1:A2</span><span class="st">`</span>,</span>
-<span id="cb29-37"><a href="#cb29-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">E_Y_00 =</span> b_Y_Intercept <span class="sc">+</span> (b_L_Intercept)<span class="sc">*</span>b_Y_L) <span class="sc">|&gt;</span></span>
-<span id="cb29-38"><a href="#cb29-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">E_Y_diff =</span> E_Y_11 <span class="sc">-</span> E_Y_00) <span class="sc">|&gt;</span></span>
-<span id="cb29-39"><a href="#cb29-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(E_Y_diff) <span class="sc">|&gt;</span></span>
-<span id="cb29-40"><a href="#cb29-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise_draws</span>()</span>
-<span id="cb29-41"><a href="#cb29-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-42"><a href="#cb29-42" aria-hidden="true" tabindex="-1"></a><span class="co"># direct effect A1 naive estimate</span></span>
-<span id="cb29-43"><a href="#cb29-43" aria-hidden="true" tabindex="-1"></a>direct_A1_est <span class="ot">&lt;-</span> params_naive <span class="sc">|&gt;</span> </span>
-<span id="cb29-44"><a href="#cb29-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(b_A1) <span class="sc">|&gt;</span></span>
-<span id="cb29-45"><a href="#cb29-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise_draws</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">E_Y_11 =</span> b_Y_Intercept <span class="sc">+</span> b_Y_A1 <span class="sc">+</span> (b_L_Intercept <span class="sc">+</span> b_L_A1)<span class="sc">*</span>b_Y_L <span class="sc">+</span> </span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>      b_Y_A2 <span class="sc">+</span> <span class="st">`</span><span class="at">b_Y_A1:A2</span><span class="st">`</span>,</span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">E_Y_00 =</span> b_Y_Intercept <span class="sc">+</span> (b_L_Intercept)<span class="sc">*</span>b_Y_L) <span class="sc">|&gt;</span></span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">E_Y_diff =</span> E_Y_11 <span class="sc">-</span> E_Y_00) <span class="sc">|&gt;</span></span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(E_Y_diff) <span class="sc">|&gt;</span></span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise_draws</span>()</span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a><span class="co"># joint effect early use</span></span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>joint_early_est <span class="ot">&lt;-</span> params_joint <span class="sc">|&gt;</span> </span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">E_Y_10 =</span> b_Y_Intercept <span class="sc">+</span> b_Y_A1 <span class="sc">+</span> (b_L_Intercept <span class="sc">+</span> b_L_A1)<span class="sc">*</span>b_Y_L,</span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">E_Y_00 =</span> b_Y_Intercept <span class="sc">+</span> (b_L_Intercept)<span class="sc">*</span>b_Y_L) <span class="sc">|&gt;</span></span>
+<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">E_Y_diff =</span> E_Y_10 <span class="sc">-</span> E_Y_00) <span class="sc">|&gt;</span></span>
+<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(E_Y_diff) <span class="sc">|&gt;</span></span>
+<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise_draws</span>()</span>
+<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a><span class="co"># direct effect early use</span></span>
+<span id="cb29-28"><a href="#cb29-28" aria-hidden="true" tabindex="-1"></a>direct_early_est <span class="ot">&lt;-</span> params_joint <span class="sc">|&gt;</span> </span>
+<span id="cb29-29"><a href="#cb29-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">E_Y_10 =</span> b_Y_Intercept <span class="sc">+</span> b_Y_A1 <span class="sc">+</span> (b_L_Intercept)<span class="sc">*</span>b_Y_L,</span>
+<span id="cb29-30"><a href="#cb29-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">E_Y_00 =</span> b_Y_Intercept <span class="sc">+</span> (b_L_Intercept)<span class="sc">*</span>b_Y_L) <span class="sc">|&gt;</span></span>
+<span id="cb29-31"><a href="#cb29-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">E_Y_diff =</span> E_Y_10 <span class="sc">-</span> E_Y_00) <span class="sc">|&gt;</span></span>
+<span id="cb29-32"><a href="#cb29-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(E_Y_diff) <span class="sc">|&gt;</span></span>
+<span id="cb29-33"><a href="#cb29-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise_draws</span>()</span>
+<span id="cb29-34"><a href="#cb29-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-35"><a href="#cb29-35" aria-hidden="true" tabindex="-1"></a><span class="co"># direct effect always - never</span></span>
+<span id="cb29-36"><a href="#cb29-36" aria-hidden="true" tabindex="-1"></a>direct_always_est <span class="ot">&lt;-</span> params_joint <span class="sc">|&gt;</span> </span>
+<span id="cb29-37"><a href="#cb29-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">E_Y_11 =</span> b_Y_Intercept <span class="sc">+</span> b_Y_A1 <span class="sc">+</span> (b_L_Intercept)<span class="sc">*</span>b_Y_L <span class="sc">+</span> </span>
+<span id="cb29-38"><a href="#cb29-38" aria-hidden="true" tabindex="-1"></a>      b_Y_A2 <span class="sc">+</span> <span class="st">`</span><span class="at">b_Y_A1:A2</span><span class="st">`</span>,</span>
+<span id="cb29-39"><a href="#cb29-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">E_Y_00 =</span> b_Y_Intercept <span class="sc">+</span> (b_L_Intercept)<span class="sc">*</span>b_Y_L) <span class="sc">|&gt;</span></span>
+<span id="cb29-40"><a href="#cb29-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">E_Y_diff =</span> E_Y_11 <span class="sc">-</span> E_Y_00) <span class="sc">|&gt;</span></span>
+<span id="cb29-41"><a href="#cb29-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(E_Y_diff) <span class="sc">|&gt;</span></span>
+<span id="cb29-42"><a href="#cb29-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise_draws</span>()</span>
+<span id="cb29-43"><a href="#cb29-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-44"><a href="#cb29-44" aria-hidden="true" tabindex="-1"></a><span class="co"># direct effect A1 naive estimate</span></span>
+<span id="cb29-45"><a href="#cb29-45" aria-hidden="true" tabindex="-1"></a>direct_A1_est <span class="ot">&lt;-</span> params_naive <span class="sc">|&gt;</span> </span>
+<span id="cb29-46"><a href="#cb29-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(b_A1) <span class="sc">|&gt;</span></span>
+<span id="cb29-47"><a href="#cb29-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise_draws</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="compare-true-causal-effects-with-estimates" class="level2">
