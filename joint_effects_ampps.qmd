@@ -66,7 +66,8 @@ f_L <- function(A1, U){
 f_A2 <- function(A1, L){
   rbinom(n, size = 1, prob = plogis(2 + b_A2_A1 * A1 + b_A2_L* L + b_A2_U * U))}
 f_Y <- function(A1, A2, L, U){
-  rnorm(n, mean = 3 + b_Y_A1 * A1 + b_Y_A2 * A2 + b_Y_A1A2 * A1 * A2 + b_Y_L * L + b_Y_U * U, sd = 0.1)} 
+  rnorm(n, mean = 3 + b_Y_A1 * A1 + b_Y_A2 * A2 + b_Y_A1A2 * A1 * A2 + b_Y_L * L +
+      b_Y_U * U, sd = 0.1)} 
 ```
 
 ## Simulate data
@@ -88,7 +89,7 @@ dat <- data.frame(A1, A2, L, Y)
 
 ### Simulate total effect of A1
 
-$E(Y^{a_1=1}) - E(Y^{a_1=1})$
+$E(Y^{a_1=1}) - E(Y^{a_1=0})$
 
 ```{r}
 n <- 1000000
@@ -296,7 +297,8 @@ total_A1_est <- params_total |>
 
 # joint effect always - never
 joint_always_est <- params_joint |> 
-  mutate(E_Y_11 = b_Y_Intercept + b_Y_A1 + (b_L_Intercept + b_L_A1)*b_Y_L + b_Y_A2 + `b_Y_A1:A2`,
+  mutate(E_Y_11 = b_Y_Intercept + b_Y_A1 + (b_L_Intercept + b_L_A1)*b_Y_L + 
+      b_Y_A2 + `b_Y_A1:A2`,
     E_Y_00 = b_Y_Intercept + (b_L_Intercept)*b_Y_L) |>
   mutate(E_Y_diff = E_Y_11 - E_Y_00) |>
   select(E_Y_diff) |>
@@ -320,7 +322,8 @@ direct_early_est <- params_joint |>
 
 # direct effect always - never
 direct_always_est <- params_joint |> 
-  mutate(E_Y_11 = b_Y_Intercept + b_Y_A1 + (b_L_Intercept)*b_Y_L + b_Y_A2 + `b_Y_A1:A2`,
+  mutate(E_Y_11 = b_Y_Intercept + b_Y_A1 + (b_L_Intercept)*b_Y_L + 
+      b_Y_A2 + `b_Y_A1:A2`,
     E_Y_00 = b_Y_Intercept + (b_L_Intercept)*b_Y_L) |>
   mutate(E_Y_diff = E_Y_11 - E_Y_00) |>
   select(E_Y_diff) |>
