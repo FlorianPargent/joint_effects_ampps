@@ -62,11 +62,11 @@ f_U <- function(){
 f_A1 <- function(){
   rbinom(n, size = 1, prob = 0.5)}
 f_L <- function(A1, U){
-  rnorm(n, mean = 1 + b_L_A1 * A1 + b_L_U * U, sd = 1)}
+  rnorm(n, mean = b_L_A1 * A1 + b_L_U * U, sd = 1)}
 f_A2 <- function(A1, L){
-  rbinom(n, size = 1, prob = plogis(2 + b_A2_A1 * A1 + b_A2_L* L + b_A2_U * U))}
+  rbinom(n, size = 1, prob = plogis(b_A2_A1 * A1 + b_A2_L* L + b_A2_U * U))}
 f_Y <- function(A1, A2, L, U){
-  rnorm(n, mean = 3 + b_Y_A1 * A1 + b_Y_A2 * A2 + b_Y_A1A2 * A1 * A2 + b_Y_L * L +
+  rnorm(n, mean = b_Y_A1 * A1 + b_Y_A2 * A2 + b_Y_A1A2 * A1 * A2 + b_Y_L * L +
       b_Y_U * U, sd = 0.1)} 
 ```
 
