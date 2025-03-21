@@ -193,18 +193,20 @@ window.Quarto = {
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>b_Y_A1 <span class="ot">&lt;-</span> <span class="sc">-</span><span class="fl">0.1</span></span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>b_Y_A2 <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">3</span></span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>b_Y_L <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">1</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>b_Y_U <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">1</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>f_U <span class="ot">&lt;-</span> <span class="cf">function</span>(){</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rnorm</span>(n)}</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>f_A1 <span class="ot">&lt;-</span> <span class="cf">function</span>(){</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rbinom</span>(n, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> <span class="fl">0.5</span>)}</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>f_L <span class="ot">&lt;-</span> <span class="cf">function</span>(A1, U){</span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rnorm</span>(n, <span class="at">mean =</span> b_L_A1 <span class="sc">*</span> A1 <span class="sc">+</span> b_L_U <span class="sc">*</span> U, <span class="at">sd =</span> <span class="dv">1</span>)}</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>f_A2 <span class="ot">&lt;-</span> <span class="cf">function</span>(A1, L){</span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rbinom</span>(n, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> <span class="fu">plogis</span>(b_A2_A1 <span class="sc">*</span> A1 <span class="sc">+</span> b_A2_L<span class="sc">*</span> L <span class="sc">+</span> b_A2_U <span class="sc">*</span> U))}</span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>f_Y <span class="ot">&lt;-</span> <span class="cf">function</span>(A1, A2, L, U){</span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rnorm</span>(n, <span class="at">mean =</span> b_Y_A1 <span class="sc">*</span> A1 <span class="sc">+</span> b_Y_A2 <span class="sc">*</span> A2 <span class="sc">+</span> b_Y_L <span class="sc">*</span> L <span class="sc">+</span> b_Y_U <span class="sc">*</span> U, <span class="at">sd =</span> <span class="fl">0.1</span>)} </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>b_Y_A1A2 <span class="ot">&lt;-</span> <span class="sc">-</span><span class="fl">0.5</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>b_Y_U <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">1</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>f_U <span class="ot">&lt;-</span> <span class="cf">function</span>(){</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rnorm</span>(n)}</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>f_A1 <span class="ot">&lt;-</span> <span class="cf">function</span>(){</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rbinom</span>(n, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> <span class="fl">0.5</span>)}</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>f_L <span class="ot">&lt;-</span> <span class="cf">function</span>(A1, U){</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rnorm</span>(n, <span class="at">mean =</span> <span class="dv">1</span> <span class="sc">+</span> b_L_A1 <span class="sc">*</span> A1 <span class="sc">+</span> b_L_U <span class="sc">*</span> U, <span class="at">sd =</span> <span class="dv">1</span>)}</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>f_A2 <span class="ot">&lt;-</span> <span class="cf">function</span>(A1, L){</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rbinom</span>(n, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> <span class="fu">plogis</span>(<span class="dv">2</span> <span class="sc">+</span> b_A2_A1 <span class="sc">*</span> A1 <span class="sc">+</span> b_A2_L<span class="sc">*</span> L <span class="sc">+</span> b_A2_U <span class="sc">*</span> U))}</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>f_Y <span class="ot">&lt;-</span> <span class="cf">function</span>(A1, A2, L, U){</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rnorm</span>(n, <span class="at">mean =</span> <span class="dv">3</span> <span class="sc">+</span> b_Y_A1 <span class="sc">*</span> A1 <span class="sc">+</span> b_Y_A2 <span class="sc">*</span> A2 <span class="sc">+</span> b_Y_A1A2 <span class="sc">*</span> A1 <span class="sc">*</span> A2 <span class="sc">+</span> b_Y_L <span class="sc">*</span> L <span class="sc">+</span> b_Y_U <span class="sc">*</span> U, <span class="at">sd =</span> <span class="fl">0.1</span>)} </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 </section>
@@ -251,7 +253,7 @@ window.Quarto = {
 <span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="co"># E(Y_1) - E(Y_0)</span></span>
 <span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>(total_A1 <span class="ot">&lt;-</span> <span class="fu">mean</span>(Y_1) <span class="sc">-</span> <span class="fu">mean</span>(Y_0))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.1305852</code></pre>
+<pre><code>[1] -0.1202878</code></pre>
 </div>
 </div>
 </section>
@@ -281,7 +283,7 @@ window.Quarto = {
 <span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="co"># E(Y_11) - E(Y_00)</span></span>
 <span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>(joint_always <span class="ot">&lt;-</span> <span class="fu">mean</span>(Y_11) <span class="sc">-</span> <span class="fu">mean</span>(Y_00))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] -4.100169</code></pre>
+<pre><code>[1] -4.600169</code></pre>
 </div>
 </div>
 </section>
@@ -341,7 +343,7 @@ window.Quarto = {
 <span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a><span class="co"># E(Y_1) - E(Y_0)</span></span>
 <span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>(direct_A1 <span class="ot">&lt;-</span> <span class="fu">mean</span>(Y_1) <span class="sc">-</span> <span class="fu">mean</span>(Y_0))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] -0.09715575</code></pre>
+<pre><code>[1] -0.5539718</code></pre>
 </div>
 </div>
 </section>
@@ -401,7 +403,7 @@ window.Quarto = {
 <span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a><span class="co"># E(Y_10) - E(Y_00)</span></span>
 <span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>(direct_always <span class="ot">&lt;-</span> <span class="fu">mean</span>(Y_10) <span class="sc">-</span> <span class="fu">mean</span>(Y_00))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] -3.100169</code></pre>
+<pre><code>[1] -3.600169</code></pre>
 </div>
 </div>
 </section>
@@ -523,14 +525,14 @@ Formula: Y ~ A1 + A2 + L
 
 Regression Coefficients:
           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-Intercept    -0.03      0.03    -0.09     0.03 1.00     3790     3091
-A1            0.42      0.04     0.35     0.50 1.00     3823     3154
-A2           -2.96      0.04    -3.04    -2.88 1.00     3350     3262
-L            -1.50      0.01    -1.52    -1.47 1.00     3871     2980
+Intercept     3.88      0.04     3.80     3.97 1.00     4127     3198
+A1           -0.03      0.04    -0.11     0.04 1.00     3889     3292
+A2           -3.45      0.04    -3.53    -3.38 1.00     3599     3045
+L            -1.49      0.01    -1.51    -1.46 1.00     4066     2995
 
 Further Distributional Parameters:
       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-sigma     0.71      0.01     0.69     0.73 1.00     4253     2740
+sigma     0.72      0.01     0.70     0.74 1.00     4109     2099
 
 Draws were sampled using sample(hmc). For each parameter, Bulk_ESS
 and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -650,12 +652,12 @@ Formula: Y ~ A1
 
 Regression Coefficients:
           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-Intercept    -1.41      0.09    -1.59    -1.24 1.00     4648     3109
-A1            0.05      0.13    -0.20     0.30 1.00     4581     3157
+Intercept    -0.63      0.10    -0.82    -0.44 1.00     4216     2908
+A1           -0.19      0.13    -0.44     0.07 1.00     3795     2852
 
 Further Distributional Parameters:
       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-sigma     2.81      0.04     2.72     2.90 1.00     4449     3043
+sigma     2.92      0.05     2.83     3.01 1.00     4177     2901
 
 Draws were sampled using sample(hmc). For each parameter, Bulk_ESS
 and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -663,7 +665,7 @@ scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>bf_L <span class="ot">&lt;-</span> <span class="fu">bf</span>(L <span class="sc">~</span> A1)</span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>bf_Y <span class="ot">&lt;-</span> <span class="fu">bf</span>(Y <span class="sc">~</span> A1 <span class="sc">+</span> A2 <span class="sc">+</span> L)</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>bf_Y <span class="ot">&lt;-</span> <span class="fu">bf</span>(Y <span class="sc">~</span> A1 <span class="sc">+</span> A2 <span class="sc">+</span> A1<span class="sc">:</span>A2 <span class="sc">+</span> L)</span>
 <span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>fit_joint <span class="ot">&lt;-</span> <span class="fu">brm</span>(bf_L <span class="sc">+</span> bf_Y <span class="sc">+</span> <span class="fu">set_rescor</span>(<span class="cn">FALSE</span>),</span>
 <span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat, <span class="at">chains =</span> <span class="dv">4</span>, <span class="at">cores =</span> <span class="dv">4</span>, <span class="at">backend =</span> <span class="st">"cmdstanr"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -682,13 +684,6 @@ Chain 1 Iteration:  900 / 2000 [ 45%]  (Warmup)
 Chain 1 Iteration: 1000 / 2000 [ 50%]  (Warmup) 
 Chain 1 Iteration: 1001 / 2000 [ 50%]  (Sampling) 
 Chain 1 Iteration: 1100 / 2000 [ 55%]  (Sampling) 
-Chain 1 Iteration: 1200 / 2000 [ 60%]  (Sampling) 
-Chain 1 Iteration: 1300 / 2000 [ 65%]  (Sampling) 
-Chain 1 Iteration: 1400 / 2000 [ 70%]  (Sampling) 
-Chain 1 Iteration: 1500 / 2000 [ 75%]  (Sampling) 
-Chain 1 Iteration: 1600 / 2000 [ 80%]  (Sampling) 
-Chain 1 Iteration: 1700 / 2000 [ 85%]  (Sampling) 
-Chain 1 Iteration: 1800 / 2000 [ 90%]  (Sampling) 
 Chain 2 Iteration:    1 / 2000 [  0%]  (Warmup) 
 Chain 2 Iteration:  100 / 2000 [  5%]  (Warmup) 
 Chain 2 Iteration:  200 / 2000 [ 10%]  (Warmup) 
@@ -702,12 +697,6 @@ Chain 2 Iteration:  900 / 2000 [ 45%]  (Warmup)
 Chain 2 Iteration: 1000 / 2000 [ 50%]  (Warmup) 
 Chain 2 Iteration: 1001 / 2000 [ 50%]  (Sampling) 
 Chain 2 Iteration: 1100 / 2000 [ 55%]  (Sampling) 
-Chain 2 Iteration: 1200 / 2000 [ 60%]  (Sampling) 
-Chain 2 Iteration: 1300 / 2000 [ 65%]  (Sampling) 
-Chain 2 Iteration: 1400 / 2000 [ 70%]  (Sampling) 
-Chain 2 Iteration: 1500 / 2000 [ 75%]  (Sampling) 
-Chain 2 Iteration: 1600 / 2000 [ 80%]  (Sampling) 
-Chain 2 Iteration: 1700 / 2000 [ 85%]  (Sampling) 
 Chain 3 Iteration:    1 / 2000 [  0%]  (Warmup) 
 Chain 3 Iteration:  100 / 2000 [  5%]  (Warmup) 
 Chain 3 Iteration:  200 / 2000 [ 10%]  (Warmup) 
@@ -718,13 +707,6 @@ Chain 3 Iteration:  600 / 2000 [ 30%]  (Warmup)
 Chain 3 Iteration:  700 / 2000 [ 35%]  (Warmup) 
 Chain 3 Iteration:  800 / 2000 [ 40%]  (Warmup) 
 Chain 3 Iteration:  900 / 2000 [ 45%]  (Warmup) 
-Chain 3 Iteration: 1000 / 2000 [ 50%]  (Warmup) 
-Chain 3 Iteration: 1001 / 2000 [ 50%]  (Sampling) 
-Chain 3 Iteration: 1100 / 2000 [ 55%]  (Sampling) 
-Chain 3 Iteration: 1200 / 2000 [ 60%]  (Sampling) 
-Chain 3 Iteration: 1300 / 2000 [ 65%]  (Sampling) 
-Chain 3 Iteration: 1400 / 2000 [ 70%]  (Sampling) 
-Chain 3 Iteration: 1500 / 2000 [ 75%]  (Sampling) 
 Chain 4 Iteration:    1 / 2000 [  0%]  (Warmup) 
 Chain 4 Iteration:  100 / 2000 [  5%]  (Warmup) 
 Chain 4 Iteration:  200 / 2000 [ 10%]  (Warmup) 
@@ -734,37 +716,57 @@ Chain 4 Iteration:  500 / 2000 [ 25%]  (Warmup)
 Chain 4 Iteration:  600 / 2000 [ 30%]  (Warmup) 
 Chain 4 Iteration:  700 / 2000 [ 35%]  (Warmup) 
 Chain 4 Iteration:  800 / 2000 [ 40%]  (Warmup) 
+Chain 1 Iteration: 1200 / 2000 [ 60%]  (Sampling) 
+Chain 1 Iteration: 1300 / 2000 [ 65%]  (Sampling) 
+Chain 1 Iteration: 1400 / 2000 [ 70%]  (Sampling) 
+Chain 1 Iteration: 1500 / 2000 [ 75%]  (Sampling) 
+Chain 1 Iteration: 1600 / 2000 [ 80%]  (Sampling) 
+Chain 1 Iteration: 1700 / 2000 [ 85%]  (Sampling) 
+Chain 1 Iteration: 1800 / 2000 [ 90%]  (Sampling) 
+Chain 1 Iteration: 1900 / 2000 [ 95%]  (Sampling) 
+Chain 2 Iteration: 1200 / 2000 [ 60%]  (Sampling) 
+Chain 2 Iteration: 1300 / 2000 [ 65%]  (Sampling) 
+Chain 2 Iteration: 1400 / 2000 [ 70%]  (Sampling) 
+Chain 2 Iteration: 1500 / 2000 [ 75%]  (Sampling) 
+Chain 2 Iteration: 1600 / 2000 [ 80%]  (Sampling) 
+Chain 2 Iteration: 1700 / 2000 [ 85%]  (Sampling) 
+Chain 2 Iteration: 1800 / 2000 [ 90%]  (Sampling) 
+Chain 2 Iteration: 1900 / 2000 [ 95%]  (Sampling) 
+Chain 3 Iteration: 1000 / 2000 [ 50%]  (Warmup) 
+Chain 3 Iteration: 1001 / 2000 [ 50%]  (Sampling) 
+Chain 3 Iteration: 1100 / 2000 [ 55%]  (Sampling) 
+Chain 3 Iteration: 1200 / 2000 [ 60%]  (Sampling) 
+Chain 3 Iteration: 1300 / 2000 [ 65%]  (Sampling) 
+Chain 3 Iteration: 1400 / 2000 [ 70%]  (Sampling) 
+Chain 3 Iteration: 1500 / 2000 [ 75%]  (Sampling) 
+Chain 3 Iteration: 1600 / 2000 [ 80%]  (Sampling) 
+Chain 3 Iteration: 1700 / 2000 [ 85%]  (Sampling) 
 Chain 4 Iteration:  900 / 2000 [ 45%]  (Warmup) 
 Chain 4 Iteration: 1000 / 2000 [ 50%]  (Warmup) 
 Chain 4 Iteration: 1001 / 2000 [ 50%]  (Sampling) 
 Chain 4 Iteration: 1100 / 2000 [ 55%]  (Sampling) 
 Chain 4 Iteration: 1200 / 2000 [ 60%]  (Sampling) 
 Chain 4 Iteration: 1300 / 2000 [ 65%]  (Sampling) 
-Chain 1 Iteration: 1900 / 2000 [ 95%]  (Sampling) 
+Chain 4 Iteration: 1400 / 2000 [ 70%]  (Sampling) 
+Chain 4 Iteration: 1500 / 2000 [ 75%]  (Sampling) 
 Chain 1 Iteration: 2000 / 2000 [100%]  (Sampling) 
-Chain 1 finished in 0.2 seconds.
-Chain 2 Iteration: 1800 / 2000 [ 90%]  (Sampling) 
-Chain 2 Iteration: 1900 / 2000 [ 95%]  (Sampling) 
+Chain 1 finished in 0.3 seconds.
 Chain 2 Iteration: 2000 / 2000 [100%]  (Sampling) 
-Chain 3 Iteration: 1600 / 2000 [ 80%]  (Sampling) 
-Chain 3 Iteration: 1700 / 2000 [ 85%]  (Sampling) 
 Chain 3 Iteration: 1800 / 2000 [ 90%]  (Sampling) 
 Chain 3 Iteration: 1900 / 2000 [ 95%]  (Sampling) 
 Chain 3 Iteration: 2000 / 2000 [100%]  (Sampling) 
-Chain 4 Iteration: 1400 / 2000 [ 70%]  (Sampling) 
-Chain 4 Iteration: 1500 / 2000 [ 75%]  (Sampling) 
 Chain 4 Iteration: 1600 / 2000 [ 80%]  (Sampling) 
 Chain 4 Iteration: 1700 / 2000 [ 85%]  (Sampling) 
 Chain 4 Iteration: 1800 / 2000 [ 90%]  (Sampling) 
 Chain 4 Iteration: 1900 / 2000 [ 95%]  (Sampling) 
 Chain 4 Iteration: 2000 / 2000 [100%]  (Sampling) 
-Chain 2 finished in 0.2 seconds.
-Chain 3 finished in 0.2 seconds.
-Chain 4 finished in 0.2 seconds.
+Chain 2 finished in 0.3 seconds.
+Chain 3 finished in 0.3 seconds.
+Chain 4 finished in 0.3 seconds.
 
 All 4 chains finished successfully.
-Mean chain execution time: 0.2 seconds.
-Total execution time: 0.3 seconds.</code></pre>
+Mean chain execution time: 0.3 seconds.
+Total execution time: 0.5 seconds.</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_joint)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -772,24 +774,25 @@ Total execution time: 0.3 seconds.</code></pre>
   Links: mu = identity; sigma = identity
          mu = identity; sigma = identity 
 Formula: L ~ A1 
-         Y ~ A1 + A2 + L 
+         Y ~ A1 + A2 + A1:A2 + L 
    Data: dat (Number of observations: 2000) 
   Draws: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
          total post-warmup draws = 4000
 
 Regression Coefficients:
             Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-L_Intercept    -0.06      0.05    -0.15     0.04 1.00     7546     2697
-Y_Intercept    -0.03      0.03    -0.09     0.03 1.00     5514     3310
-L_A1            1.04      0.06     0.92     1.17 1.00     6428     2687
-Y_A1            0.42      0.04     0.35     0.50 1.00     4818     3698
-Y_A2           -2.96      0.04    -3.04    -2.89 1.00     5429     3494
-Y_L            -1.50      0.01    -1.52    -1.47 1.00     6081     3442
+L_Intercept     0.94      0.05     0.85     1.03 1.00     5003     2326
+Y_Intercept     3.44      0.07     3.30     3.58 1.00     2687     2829
+L_A1            1.04      0.06     0.92     1.17 1.00     4621     2577
+Y_A1            0.50      0.08     0.34     0.66 1.00     2544     2930
+Y_A2           -2.96      0.08    -3.10    -2.81 1.00     2683     2799
+Y_L            -1.49      0.01    -1.51    -1.47 1.00     5607     2588
+Y_A1:A2        -0.66      0.09    -0.84    -0.50 1.00     2678     2866
 
 Further Distributional Parameters:
         Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-sigma_L     1.42      0.02     1.38     1.47 1.00     7149     2871
-sigma_Y     0.71      0.01     0.69     0.73 1.00     8013     2956
+sigma_L     1.42      0.02     1.38     1.47 1.00     6238     2742
+sigma_Y     0.71      0.01     0.69     0.73 1.00     5751     2963
 
 Draws were sampled using sample(hmc). For each parameter, Bulk_ESS
 and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -811,7 +814,7 @@ scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
 <span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a><span class="co"># joint effect always - never</span></span>
 <span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>joint_always_est <span class="ot">&lt;-</span> params_joint <span class="sc">|&gt;</span> </span>
-<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">E_Y_11 =</span> b_Y_Intercept <span class="sc">+</span> b_Y_A1 <span class="sc">+</span> (b_L_Intercept <span class="sc">+</span> b_L_A1)<span class="sc">*</span>b_Y_L <span class="sc">+</span> b_Y_A2,</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">E_Y_11 =</span> b_Y_Intercept <span class="sc">+</span> b_Y_A1 <span class="sc">+</span> (b_L_Intercept <span class="sc">+</span> b_L_A1)<span class="sc">*</span>b_Y_L <span class="sc">+</span> b_Y_A2 <span class="sc">+</span> <span class="st">`</span><span class="at">b_Y_A1:A2</span><span class="st">`</span>,</span>
 <span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">E_Y_00 =</span> b_Y_Intercept <span class="sc">+</span> (b_L_Intercept)<span class="sc">*</span>b_Y_L) <span class="sc">|&gt;</span></span>
 <span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">E_Y_diff =</span> E_Y_11 <span class="sc">-</span> E_Y_00) <span class="sc">|&gt;</span></span>
 <span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(E_Y_diff) <span class="sc">|&gt;</span></span>
@@ -835,9 +838,9 @@ scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
 <span id="cb29-33"><a href="#cb29-33" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb29-34"><a href="#cb29-34" aria-hidden="true" tabindex="-1"></a><span class="co"># direct effect always - never</span></span>
 <span id="cb29-35"><a href="#cb29-35" aria-hidden="true" tabindex="-1"></a>direct_always_est <span class="ot">&lt;-</span> params_joint <span class="sc">|&gt;</span> </span>
-<span id="cb29-36"><a href="#cb29-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">E_Y_10 =</span> b_Y_Intercept <span class="sc">+</span> b_Y_A1 <span class="sc">+</span> (b_L_Intercept)<span class="sc">*</span>b_Y_L <span class="sc">+</span> b_Y_A2,</span>
+<span id="cb29-36"><a href="#cb29-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">E_Y_11 =</span> b_Y_Intercept <span class="sc">+</span> b_Y_A1 <span class="sc">+</span> (b_L_Intercept)<span class="sc">*</span>b_Y_L <span class="sc">+</span> b_Y_A2 <span class="sc">+</span> <span class="st">`</span><span class="at">b_Y_A1:A2</span><span class="st">`</span>,</span>
 <span id="cb29-37"><a href="#cb29-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">E_Y_00 =</span> b_Y_Intercept <span class="sc">+</span> (b_L_Intercept)<span class="sc">*</span>b_Y_L) <span class="sc">|&gt;</span></span>
-<span id="cb29-38"><a href="#cb29-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">E_Y_diff =</span> E_Y_10 <span class="sc">-</span> E_Y_00) <span class="sc">|&gt;</span></span>
+<span id="cb29-38"><a href="#cb29-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">E_Y_diff =</span> E_Y_11 <span class="sc">-</span> E_Y_00) <span class="sc">|&gt;</span></span>
 <span id="cb29-39"><a href="#cb29-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(E_Y_diff) <span class="sc">|&gt;</span></span>
 <span id="cb29-40"><a href="#cb29-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise_draws</span>()</span>
 <span id="cb29-41"><a href="#cb29-41" aria-hidden="true" tabindex="-1"></a></span>
@@ -884,45 +887,45 @@ scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">total effect A1</td>
-<td style="text-align: right;">0.1305852</td>
-<td style="text-align: right;">0.0522524</td>
-<td style="text-align: right;">-0.1616454</td>
-<td style="text-align: right;">0.2613804</td>
+<td style="text-align: right;">-0.1202878</td>
+<td style="text-align: right;">-0.1873160</td>
+<td style="text-align: right;">-0.4023021</td>
+<td style="text-align: right;">0.0327221</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">joint effect always - never</td>
-<td style="text-align: right;">-4.1001686</td>
-<td style="text-align: right;">-4.1001568</td>
-<td style="text-align: right;">-4.2880302</td>
-<td style="text-align: right;">-3.9126403</td>
+<td style="text-align: right;">-4.6001686</td>
+<td style="text-align: right;">-4.6730695</td>
+<td style="text-align: right;">-4.8762712</td>
+<td style="text-align: right;">-4.4731886</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">joint effect early use</td>
 <td style="text-align: right;">-1.1001686</td>
-<td style="text-align: right;">-1.1359578</td>
-<td style="text-align: right;">-1.3036748</td>
-<td style="text-align: right;">-0.9709545</td>
+<td style="text-align: right;">-1.0524829</td>
+<td style="text-align: right;">-1.2581886</td>
+<td style="text-align: right;">-0.8566677</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">direct effect A1</td>
-<td style="text-align: right;">-0.0971558</td>
-<td style="text-align: right;">0.4232925</td>
-<td style="text-align: right;">0.3620778</td>
-<td style="text-align: right;">0.4871207</td>
+<td style="text-align: right;">-0.5539718</td>
+<td style="text-align: right;">-0.0351925</td>
+<td style="text-align: right;">-0.0997796</td>
+<td style="text-align: right;">0.0307417</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">direct effect early use</td>
 <td style="text-align: right;">-0.1001686</td>
-<td style="text-align: right;">0.4237300</td>
-<td style="text-align: right;">0.3602517</td>
-<td style="text-align: right;">0.4864989</td>
+<td style="text-align: right;">0.4989100</td>
+<td style="text-align: right;">0.3654464</td>
+<td style="text-align: right;">0.6307935</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">direct effect always - never</td>
-<td style="text-align: right;">-3.1001686</td>
-<td style="text-align: right;">-2.5393895</td>
-<td style="text-align: right;">-2.6517932</td>
-<td style="text-align: right;">-2.4281431</td>
+<td style="text-align: right;">-3.6001686</td>
+<td style="text-align: right;">-3.1189720</td>
+<td style="text-align: right;">-3.2554586</td>
+<td style="text-align: right;">-2.9864640</td>
 </tr>
 </tbody>
 </table>
