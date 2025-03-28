@@ -1,11 +1,11 @@
 ---
-title: "Joint effects"
-authors: "Florian Pargent"
+title: "Toy example: Causal effects of smartphone usage on sleep quality"
+authors: "Florian Pargent and Lukas Junker"
 date: today
 format: html
 ---
 
-# Toy example: The effect of smartphone usage on sleep quality 
+# Introduction
 
 # Demonstration in R
 
@@ -54,7 +54,7 @@ b_Y_A1 <- -0.1
 b_Y_A2 <- -3
 b_Y_L <- -1
 b_Y_A1A2 <- -0.5
-b_Y_U <- -1
+b_Y_U <- -2
 
 
 f_U <- function(){
@@ -62,27 +62,12 @@ f_U <- function(){
 f_A1 <- function(){
   rbinom(n, size = 1, prob = 0.5)}
 f_L <- function(A1, U){
-  rnorm(n, mean = b_L_A1 * A1 + b_L_U * U, sd = 1)}
+  rnorm(n, mean = b_L_A1 * A1 + b_L_U * U)}
 f_A2 <- function(A1, L){
-  rbinom(n, size = 1, prob = plogis(b_A2_A1 * A1 + b_A2_L* L + b_A2_U * U))}
+  rbinom(n, size = 1, prob = pnorm(b_A2_A1 * A1 + b_A2_L* L + b_A2_U * U))}
 f_Y <- function(A1, A2, L, U){
   rnorm(n, mean = b_Y_A1 * A1 + b_Y_A2 * A2 + b_Y_A1A2 * A1 * A2 + b_Y_L * L +
       b_Y_U * U, sd = 0.1)} 
-```
-
-## Simulate data
-
-```{r}
-n <- 2000
-set.seed(42)
-
-U <- f_U()
-A1 <- f_A1()
-L <- f_L(A1, U)
-A2 <- f_A2(A1, L)
-Y <- f_Y(A1, A2, L, U)
-
-dat <- data.frame(A1, A2, L, Y)
 ```
 
 ## Determine the true causal effects
@@ -92,7 +77,7 @@ dat <- data.frame(A1, A2, L, Y)
 $E(Y^{a_1=1}) - E(Y^{a_1=0})$
 
 ```{r}
-n <- 1000000
+n <- 10000000
 set.seed(42)
 
 # Y_1: Y^{a_1=1}
@@ -115,13 +100,33 @@ Y_0 <- f_Y(A1, A2, L, U)
 (total_A1 <- mean(Y_1) - mean(Y_0))
 ```
 
+::: {.callout-caution collapse="true"}
+
+### Compute the total effect of A1 analytically
+
+$$
+\begin{aligned}
+& E(Y^{a_1=1}) - E(Y^{a_1=0})\\
+& = \dots \\
+& = \beta_{YA1} + \beta_{YL} \beta_{LA1} + \beta_{YA1} \left[ \Phi \left(\frac{\beta_{A2A1} + \beta_{A2L} \beta_{LA1}}{\sqrt{1 + \beta_{A2L}^2 + \beta_{A2L}^2 \beta_{LU}^2}}\right) - 0.5 \right] + \beta_{YA1A2} \ \Phi \left(\frac{\beta_{A2A1} + \beta_{A2L} \beta_{LA1}}{\sqrt{1 + \beta_{A2L}^2 + \beta_{A2L}^2 \beta_{LU}^2 }}\right) = \\
+& = 
+`r (b_Y_A1 + b_Y_L * b_L_A1) + b_Y_A2 * (pnorm((b_A2_A1 + b_A2_L * b_L_A1) / sqrt(1 + b_A2_L ^2 + b_A2_L ^2 * b_L_U^2)) - pnorm((0) / sqrt(1 + b_A2_L ^2 + b_A2_L ^2 * b_L_U^2))) + b_Y_A1A2 * pnorm((b_A2_A1 + b_A2_L * b_L_A1) / sqrt(1 + b_A2_L ^2 + b_A2_L ^2 * b_L_U^2))` \\
+\end{aligned}
+$$
+
+*Note:*
+
+- The equation was derived by ChatGPT (o3-mini-high).
+- The equation only holds for our concrete data generating process. It additionally assumes that 1) for all equations in the data generating process the intercepts are equal to 0, and 2) U and L are simulated with residual variance equal to 1.
+
+:::
 
 ### Simulate joint effect "always - never"
 
-$E(Y^{a_1=1, a_2=1}) - E(Y^{a_1=1, a_2=0})$
+$E(Y^{a_1=1, a_2=1}) - E(Y^{a_1=0, a_2=0})$
 
 ```{r}
-n <- 1000000
+n <- 10000000
 set.seed(42)
 
 # Y_11: Y^{a_1=1, a_2=1}
@@ -144,13 +149,30 @@ Y_00 <- f_Y(A1, A2, L, U)
 (joint_always <- mean(Y_11) - mean(Y_00))
 ```
 
+::: {.callout-caution collapse="true"}
+
+### Compute the joint effect "always - never" analytically
+
+$$
+\begin{aligned}
+& E(Y^{a_1=1, a_2=1}) - E(Y^{a_1=0, a_2=0})\\
+& = \dots \\
+& = \beta_{YA1} + \beta_{YA2} + \beta_{YA1A2} + \beta_{YL} \beta_{LA1} \\
+& = `r b_Y_A1 + b_Y_A2 + b_Y_A1A2 + b_Y_L * b_L_A1` \\
+\end{aligned}
+$$
+
+*Note:*
+
+- The equation only holds for our concrete data generating process. It additionally assumes that for all equations in the data generating process the intercepts are equal to 0.
+:::
 
 ### Simulate joint effect "early use"
 
 $E(Y^{a_1=1, a_2=0}) - E(Y^{a_1=0, a_2=0})$
 
 ```{r}
-n <- 1000000
+n <- 10000000
 set.seed(42)
 
 # Y_10: Y^{a_1=1, a_2=0}
@@ -174,12 +196,125 @@ Y_00 <- f_Y(A1, A2, L, U)
 ```
 
 
-### Simulate natural direct effect of A1
+### Simulate joint effect "late use"
+
+$E(Y^{a_1=0, a_2=1}) - E(Y^{a_1=0, a_2=0})$
+
+```{r}
+n <- 10000000
+set.seed(42)
+
+# Y_01: Y^{a_1=0, a_2=1}
+
+U <- f_U()
+A1 <- rep(0, n) # intervention
+L <- f_L(A1, U)
+A2 <- rep(1, n) # intervention
+Y_10 <- f_Y(A1, A2, L, U)
+
+# Y_00: Y^{a_1=0, a_2=0}
+
+U <- f_U()
+A1 <- rep(0, n) # intervention
+L <- f_L(A1, U)
+A2 <- rep(0, n) # intervention
+Y_00 <- f_Y(A1, A2, L, U)
+
+# E(Y_01) - E(Y_00)
+(joint_late <- mean(Y_10) - mean(Y_00))
+```
+
+### Simulate direct effect "always - never"
+
+$E(Y^{a_1=1, L^{a_1=0}, a_2=1}) - E(Y^{a_1=0, L^{a_1=0}, a_2=0})$
+
+```{r}
+n <- 10000000
+set.seed(42)
+
+# Y_10: Y^{a_1=1, L^{a_1=0}, a_2=1}
+
+U <- f_U()
+A1 <- rep(1, n) # intervention
+L <- f_L(A1 = rep(0, n), U)
+A2 <- rep(1, n) # intervention
+Y_10 <- f_Y(A1, A2, L, U)
+
+# Y_00: Y^{a_1=0, L^{a_1=0}, a_2=0}
+
+U <- f_U()
+A1 <- rep(0, n) # intervention
+L <-  f_L(A1, U)
+A2 <-  rep(0, n) # intervention
+Y_00 <- f_Y(A1, A2, L, U)
+
+# E(Y_10) - E(Y_00)
+(direct_always <- mean(Y_10) - mean(Y_00))
+```
+
+### Simulate direct effect "early use"
+
+$E(Y^{a_1=1, L^{a_1=0}, a_2=0}) - E(Y^{a_1=0, L^{a_1=0}, a_2=0})$
+
+```{r}
+n <- 10000000
+set.seed(42)
+
+# Y_10: Y^{a_1=1, L^{a_1=0}, a_2=0}
+
+U <- f_U()
+A1 <- rep(1, n) # intervention
+L <- f_L(A1 = rep(0, n), U)
+A2 <- rep(0, n) # intervention
+Y_10 <- f_Y(A1, A2, L, U)
+
+# Y_00: Y^{a_1=0, L^{a_1=0}, a_2=0}
+
+U <- f_U()
+A1 <- rep(0, n) # intervention
+L <-  f_L(A1, U)
+A2 <-  rep(0, n) # intervention
+Y_00 <- f_Y(A1, A2, L, U)
+
+# E(Y_10) - E(Y_00)
+(direct_early <- mean(Y_10) - mean(Y_00))
+```
+
+### Simulate direct effect "late use"
+
+$E(Y^{a_1=0, L^{a_1=0}, a_2=0}) - E(Y^{a_1=0, L^{a_1=0}, a_2=1})$
+
+```{r}
+n <- 10000000
+set.seed(42)
+
+# Y_01: Y^{a_1=0, L^{a_1=0}, a_2=1}
+
+U <- f_U()
+A1 <- rep(0, n) # intervention
+L <- f_L(A1, U)
+A2 <- rep(1, n) # intervention
+Y_01 <- f_Y(A1, A2, L, U)
+
+# Y_00: Y^{a_1=0, L^{a_1=0}, a_2=0}
+
+U <- f_U()
+A1 <- rep(0, n) # intervention
+L <-  f_L(A1, U)
+A2 <-  rep(0, n) # intervention
+Y_00 <- f_Y(A1, A2, L, U)
+
+# E(Y_01) - E(Y_00)
+(direct_late <- mean(Y_01) - mean(Y_00))
+```
+
+
+### Simulate direct effect of A1
 
 $E(Y^{a_1=1, L^{a_1=0}, A_2^{a_1=0, L^{a_1=0}}}) - E(Y^{a_1=0, L^{a_1=0}, A_2^{a_1=0, L^{a_1=0}}})$
 
 ```{r}
-n <- 1000000
+n <- 10000000
 set.seed(42)
 
 # Y_1: Y^{a_1=1, L^{a_1=0}, A_2^{a_1=0, L^{a_1=0}}}
@@ -203,72 +338,25 @@ Y_0 <- f_Y(A1, A2, L, U)
 ```
 
 
-### Simulate natural direct effect "early use"
-
-$E(Y^{a_1=1, L^{a_1=0}, a_2=0}) - E(Y^{a_1=0, L^{a_1=0}, a_2=0})$
+## Simulate dataset
 
 ```{r}
-n <- 1000000
+n <- 2000
 set.seed(42)
 
-# Y_10: Y^{a_1=1, L^{a_1=0}, a_2=0}
-
 U <- f_U()
-A1 <- rep(1, n) # intervention
-L <- f_L(A1 = rep(0, n), U)
-A2 <- rep(0, n) # intervention
-Y_10 <- f_Y(A1, A2, L, U)
+A1 <- f_A1()
+L <- f_L(A1, U)
+A2 <- f_A2(A1, L)
+Y <- f_Y(A1, A2, L, U)
 
-# Y_00: Y^{a_1=0, L^{a_1=0}, a_2=0}
-
-U <- f_U()
-A1 <- rep(0, n) # intervention
-L <-  f_L(A1, U)
-A2 <-  rep(0, n) # intervention
-Y_00 <- f_Y(A1, A2, L, U)
-
-# E(Y_10) - E(Y_00)
-(direct_early <- mean(Y_10) - mean(Y_00))
-```
-
-
-### Simulate natural direct effect "always - never"
-
-$E(Y^{a_1=1, L^{a_1=0}, a_2=1}) - E(Y^{a_1=0, L^{a_1=0}, a_2=0})$
-
-```{r}
-n <- 1000000
-set.seed(42)
-
-# Y_10: Y^{a_1=1, L^{a_1=0}, a_2=1}
-
-U <- f_U()
-A1 <- rep(1, n) # intervention
-L <- f_L(A1 = rep(0, n), U)
-A2 <- rep(1, n) # intervention
-Y_10 <- f_Y(A1, A2, L, U)
-
-# Y_00: Y^{a_1=0, L^{a_1=0}, a_2=0}
-
-U <- f_U()
-A1 <- rep(0, n) # intervention
-L <-  f_L(A1, U)
-A2 <-  rep(0, n) # intervention
-Y_00 <- f_Y(A1, A2, L, U)
-
-# E(Y_10) - E(Y_00)
-(direct_always <- mean(Y_10) - mean(Y_00))
+dat <- data.frame(A1, A2, L, Y)
 ```
 
 ## Fit statistical models with brms
 
 ```{r}
 #| message: false
-
-set.seed(42)
-fit_naive <- brm(Y ~ A1 + A2 + L,
-  data = dat, chains = 4, cores = 4, backend = "cmdstanr")
-summary(fit_naive)
 
 set.seed(42)
 fit_total <- brm(Y ~ A1,
@@ -281,61 +369,232 @@ bf_Y <- bf(Y ~ A1 + A2 + A1:A2 + L)
 fit_joint <- brm(bf_L + bf_Y + set_rescor(FALSE),
   data = dat, chains = 4, cores = 4, backend = "cmdstanr")
 summary(fit_joint)
+
+set.seed(42)
+bf_L <- bf(L ~ A1)
+bf_A2 <- bf(A2 ~ A1 + L, family = bernoulli(link = probit))
+bf_Y <- bf(Y ~ A1 + A2 + A1:A2 + L)
+fit_direct <- brm(bf_L + bf_A2 + bf_Y + set_rescor(FALSE),
+  data = dat, chains = 4, cores = 4, backend = "cmdstanr")
+summary(fit_direct)
 ```
 
 ## Estimate causal effects
 
 ```{r}
-params_naive <- tidy_draws(fit_naive)
 params_total <- tidy_draws(fit_total)
 params_joint <- tidy_draws(fit_joint)
+params_direct <- tidy_draws(fit_direct)
+N <- 10000
 
 # total effect A1
 total_A1_est <- params_total |> 
-  select(b_A1) |>
+  group_by(.draw) |>
+  mutate(
+    E_Y_1 = {
+      a1 <- rep(1, N)
+      y <- rnorm(N, b_Intercept + b_A1 * a1, sd = sigma)
+      mean(y)},
+    E_Y_0 = {
+      a1 <- rep(0, N)
+      y <- rnorm(N, b_Intercept + b_A1 * a1, sd = sigma)
+    mean(y)}) |>
+  mutate(E_Y_diff = E_Y_1 - E_Y_0) |>
+  ungroup() |> select(E_Y_diff) |>
   summarise_draws()
 
 # joint effect always - never
 joint_always_est <- params_joint |> 
-  mutate(E_Y_11 = b_Y_Intercept + b_Y_A1 + (b_L_Intercept + b_L_A1)*b_Y_L + 
-      b_Y_A2 + `b_Y_A1:A2`,
-    E_Y_00 = b_Y_Intercept + (b_L_Intercept)*b_Y_L) |>
+  group_by(.draw) |>
+  mutate(
+    E_Y_11 = {
+      a1 <- rep(1, N)
+      l <- rnorm(N, b_L_Intercept + b_L_A1 * a1, sd = sigma_L)
+      a2 <- rep(1, N)
+      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 + b_Y_L * l, sd = sigma_Y)
+      mean(y)},
+    E_Y_00 = {
+      a1 <- rep(0, N)
+      l <- rnorm(N, b_L_Intercept + b_L_A1 * a1, sd = sigma_L)
+      a2 <- rep(0, N)
+      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 + b_Y_L * l, sd = sigma_Y)
+    mean(y)}) |>
   mutate(E_Y_diff = E_Y_11 - E_Y_00) |>
-  select(E_Y_diff) |>
+  ungroup() |> select(E_Y_diff) |>
   summarise_draws()
 
 # joint effect early use
 joint_early_est <- params_joint |> 
-  mutate(E_Y_10 = b_Y_Intercept + b_Y_A1 + (b_L_Intercept + b_L_A1)*b_Y_L,
-    E_Y_00 = b_Y_Intercept + (b_L_Intercept)*b_Y_L) |>
+  group_by(.draw) |>
+  mutate(
+    E_Y_10 = {
+      a1 <- rep(1, N)
+      l <- rnorm(N, b_L_Intercept + b_L_A1 * a1, sd = sigma_L)
+      a2 <- rep(0, N)
+      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 + b_Y_L * l, sd = sigma_Y)
+      mean(y)},
+    E_Y_00 = {
+      a1 <- rep(0, N)
+      l <- rnorm(N, b_L_Intercept + b_L_A1 * a1, sd = sigma_L)
+      a2 <- rep(0, N)
+      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 + b_Y_L * l, sd = sigma_Y)
+    mean(y)}) |>
   mutate(E_Y_diff = E_Y_10 - E_Y_00) |>
-  select(E_Y_diff) |>
+  ungroup() |> select(E_Y_diff) |>
   summarise_draws()
 
-# direct effect early use
-direct_early_est <- params_joint |> 
-  mutate(E_Y_10 = b_Y_Intercept + b_Y_A1 + (b_L_Intercept)*b_Y_L,
-    E_Y_00 = b_Y_Intercept + (b_L_Intercept)*b_Y_L) |>
-  mutate(E_Y_diff = E_Y_10 - E_Y_00) |>
-  select(E_Y_diff) |>
+# joint effect late use
+joint_late_est <- params_joint |> 
+  group_by(.draw) |>
+  mutate(
+    E_Y_01 = {
+      a1 <- rep(0, N)
+      l <- rnorm(N, b_L_Intercept + b_L_A1 * a1, sd = sigma_L)
+      a2 <- rep(1, N)
+      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 + b_Y_L * l, sd = sigma_Y)
+      mean(y)},
+    E_Y_00 = {
+      a1 <- rep(0, N)
+      l <- rnorm(N, b_L_Intercept + b_L_A1 * a1, sd = sigma_L)
+      a2 <- rep(0, N)
+      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 + b_Y_L * l, sd = sigma_Y)
+    mean(y)}) |>
+  mutate(E_Y_diff = E_Y_01 - E_Y_00) |>
+  ungroup() |> select(E_Y_diff) |>
   summarise_draws()
 
 # direct effect always - never
 direct_always_est <- params_joint |> 
-  mutate(E_Y_11 = b_Y_Intercept + b_Y_A1 + (b_L_Intercept)*b_Y_L + 
-      b_Y_A2 + `b_Y_A1:A2`,
-    E_Y_00 = b_Y_Intercept + (b_L_Intercept)*b_Y_L) |>
+  group_by(.draw) |>
+  mutate(
+    E_Y_11 = {
+      a1 <- rep(1, N)
+      a1_0 <- rep(0, N)
+      l <- rnorm(N, b_L_Intercept + b_L_A1 * a1_0, sd = sigma_L)
+      a2 <- rep(1, N)
+      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 + b_Y_L * l, sd = sigma_Y)
+      mean(y)},
+    E_Y_00 = {
+      a1 <- rep(0, N)
+      l <- rnorm(N, b_L_Intercept + b_L_A1 * a1, sd = sigma_L)
+      a2 <- rep(0, N)
+      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 + b_Y_L * l, sd = sigma_Y)
+    mean(y)}) |>
   mutate(E_Y_diff = E_Y_11 - E_Y_00) |>
-  select(E_Y_diff) |>
+  ungroup() |> select(E_Y_diff) |>
   summarise_draws()
 
-# direct effect A1 naive estimate
-direct_A1_est <- params_naive |> 
-  select(b_A1) |>
+# direct effect early use
+direct_early_est <- params_joint |> 
+  group_by(.draw) |>
+  mutate(
+    E_Y_10 = {
+      a1 <- rep(1, N)
+      a1_0 <- rep(0, N)
+      l <- rnorm(N, b_L_Intercept + b_L_A1 * a1_0, sd = sigma_L)
+      a2 <- rep(0, N)
+      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 + b_Y_L * l, sd = sigma_Y)
+      mean(y)},
+    E_Y_00 = {
+      a1 <- rep(0, N)
+      l <- rnorm(N, b_L_Intercept + b_L_A1 * a1, sd = sigma_L)
+      a2 <- rep(0, N)
+      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 + b_Y_L * l, sd = sigma_Y)
+    mean(y)}) |>
+  mutate(E_Y_diff = E_Y_10 - E_Y_00) |>
+  ungroup() |> select(E_Y_diff) |>
+  summarise_draws()
+
+# direct effect late use
+direct_late_est <- params_joint |> 
+  group_by(.draw) |>
+  mutate(
+    E_Y_01 = {
+      a1 <- rep(0, N)
+      l <- rnorm(N, b_L_Intercept + b_L_A1 * a1, sd = sigma_L)
+      a2 <- rep(1, N)
+      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 + b_Y_L * l, sd = sigma_Y)
+      mean(y)},
+    E_Y_00 = {
+      a1 <- rep(0, N)
+      l <- rnorm(N, b_L_Intercept + b_L_A1 * a1, sd = sigma_L)
+      a2 <- rep(0, N)
+      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 + b_Y_L * l, sd = sigma_Y)
+    mean(y)}) |>
+  mutate(E_Y_diff = E_Y_01 - E_Y_00) |>
+  ungroup() |> select(E_Y_diff) |>
+  summarise_draws()
+
+# direct effect A1
+direct_A1_est <- params_direct |> 
+  group_by(.draw) |>
+  mutate(
+    E_Y_1 = {
+      a1 <- rep(1, N)
+      a1_0 <- rep(0, N)
+      l <- rnorm(N, b_L_Intercept + b_L_A1 * a1_0, sd = sigma_L)
+      a2 <- rbinom(N, size = 1, prob = pnorm(b_A2_Intercept + b_A2_A1 * a1_0 + b_A2_L * l))
+      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 + b_Y_L * l, sd = sigma_Y)
+      mean(y)},
+    E_Y_0 = {
+      a1 <- rep(0, N)
+      l <- rnorm(N, b_L_Intercept + b_L_A1 * a1, sd = sigma_L)
+      a2 <- rbinom(N, size = 1, prob = pnorm(b_A2_Intercept + b_A2_A1 * a1 + b_A2_L * l))
+      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 + b_Y_L * l, sd = sigma_Y)
+    mean(y)}) |>
+  mutate(E_Y_diff = E_Y_1 - E_Y_0) |>
+  ungroup() |> select(E_Y_diff) |>
   summarise_draws()
 ```
 
-## Compare true causal effects with estimates
+```{r}
+#| include: false
+# # total effect A1
+# total_A1_est <- params_total |> 
+#   select(b_A1) |>
+#   summarise_draws()
+
+# # joint effect always - never
+# joint_always_est <- params_joint |> 
+#   mutate(E_Y_11 = b_Y_Intercept + b_Y_A1 + (b_L_Intercept + b_L_A1)*b_Y_L + 
+#       b_Y_A2 + `b_Y_A1:A2`,
+#     E_Y_00 = b_Y_Intercept + (b_L_Intercept)*b_Y_L) |>
+#   mutate(E_Y_diff = E_Y_11 - E_Y_00) |>
+#   select(E_Y_diff) |>
+#   summarise_draws()
+
+# # joint effect early use
+# joint_early_est <- params_joint |> 
+#   mutate(E_Y_10 = b_Y_Intercept + b_Y_A1 + (b_L_Intercept + b_L_A1)*b_Y_L,
+#     E_Y_00 = b_Y_Intercept + (b_L_Intercept)*b_Y_L) |>
+#   mutate(E_Y_diff = E_Y_10 - E_Y_00) |>
+#   select(E_Y_diff) |>
+#   summarise_draws()
+
+# # direct effect early use
+# direct_early_est <- params_joint |> 
+#   mutate(E_Y_10 = b_Y_Intercept + b_Y_A1 + (b_L_Intercept)*b_Y_L,
+#     E_Y_00 = b_Y_Intercept + (b_L_Intercept)*b_Y_L) |>
+#   mutate(E_Y_diff = E_Y_10 - E_Y_00) |>
+#   select(E_Y_diff) |>
+#   summarise_draws()
+
+# # direct effect always - never
+# direct_always_est <- params_joint |> 
+#   mutate(E_Y_11 = b_Y_Intercept + b_Y_A1 + (b_L_Intercept)*b_Y_L + 
+#       b_Y_A2 + `b_Y_A1:A2`,
+#     E_Y_00 = b_Y_Intercept + (b_L_Intercept)*b_Y_L) |>
+#   mutate(E_Y_diff = E_Y_11 - E_Y_00) |>
+#   select(E_Y_diff) |>
+#   summarise_draws()
+# 
+# # direct effect A1 naive estimate
+# direct_A1_est <- params_naive |> 
+#   select(b_A1) |>
+#   summarise_draws()
+```
+
+## Compare true causal effects with empirical estimates
 
 ```{r}
 #| code-fold: true
@@ -345,17 +604,17 @@ table <- tribble(
   "total effect A1"             , total_A1      , total_A1_est$median     , total_A1_est$q5     , total_A1_est$q95     ,
   "joint effect always - never" , joint_always  , joint_always_est$median , joint_always_est$q5 , joint_always_est$q95 ,
   "joint effect early use"      , joint_early   , joint_early_est$median  , joint_early_est$q5  , joint_early_est$q95  ,
-  "direct effect A1"            , direct_A1     , direct_A1_est$median    , direct_A1_est$q5    , direct_A1_est$q95    ,
+  "joint effect late use"       , joint_late    , joint_late_est$median   , joint_late_est$q5   , joint_late_est$q95   ,
+  "direct effect always - never", direct_always , direct_always_est$median, direct_always_est$q5, direct_always_est$q95,
   "direct effect early use"     , direct_early  , direct_early_est$median , direct_early_est$q5 , direct_early_est$q95 ,
-  "direct effect always - never", direct_always , direct_always_est$median, direct_always_est$q5, direct_always_est$q95
+  "direct effect late use"      , direct_late   , direct_late_est$median  , direct_late_est$q5  , direct_late_est$q95  ,
+  "direct effect A1"            , direct_A1     , direct_A1_est$median    , direct_A1_est$q5    , direct_A1_est$q95    ,
+
 )
 knitr::kable(table)
 ```
 
-As can be seen from the DAG, the estimate for the direct effects must be biased. In any case, they can not be estimated without bias with the naive estimate (if U had no effect, the naive estimate would be unbiased for the direct effect of A1). 
-
-All other effects can be identified and estimated without bias (at least in theory). However, note that this is only true for our very specific DAG. If (for example), U would have a direct causal effect on A2, only the total effect of A1 but none of the other effects could be identified and estimated without bias.
-You could verify this by changing the value of the variable `b_A2_U <- -1.5` in the functional relationship code and repeat the simulation. 
+Note that the total, joint effects, and the  are estimated without bias, while the direct effects are biased because of the unobserved confounder U (except for the direct effect of "late use", which for our data generating process is equal to the joint effect of "late use").
 
 # References
 
