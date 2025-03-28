@@ -547,52 +547,6 @@ direct_A1_est <- params_direct |>
   summarise_draws()
 ```
 
-```{r}
-#| include: false
-# # total effect A1
-# total_A1_est <- params_total |> 
-#   select(b_A1) |>
-#   summarise_draws()
-
-# # joint effect always - never
-# joint_always_est <- params_joint |> 
-#   mutate(E_Y_11 = b_Y_Intercept + b_Y_A1 + (b_L_Intercept + b_L_A1)*b_Y_L + 
-#       b_Y_A2 + `b_Y_A1:A2`,
-#     E_Y_00 = b_Y_Intercept + (b_L_Intercept)*b_Y_L) |>
-#   mutate(E_Y_diff = E_Y_11 - E_Y_00) |>
-#   select(E_Y_diff) |>
-#   summarise_draws()
-
-# # joint effect early use
-# joint_early_est <- params_joint |> 
-#   mutate(E_Y_10 = b_Y_Intercept + b_Y_A1 + (b_L_Intercept + b_L_A1)*b_Y_L,
-#     E_Y_00 = b_Y_Intercept + (b_L_Intercept)*b_Y_L) |>
-#   mutate(E_Y_diff = E_Y_10 - E_Y_00) |>
-#   select(E_Y_diff) |>
-#   summarise_draws()
-
-# # direct effect early use
-# direct_early_est <- params_joint |> 
-#   mutate(E_Y_10 = b_Y_Intercept + b_Y_A1 + (b_L_Intercept)*b_Y_L,
-#     E_Y_00 = b_Y_Intercept + (b_L_Intercept)*b_Y_L) |>
-#   mutate(E_Y_diff = E_Y_10 - E_Y_00) |>
-#   select(E_Y_diff) |>
-#   summarise_draws()
-
-# # direct effect always - never
-# direct_always_est <- params_joint |> 
-#   mutate(E_Y_11 = b_Y_Intercept + b_Y_A1 + (b_L_Intercept)*b_Y_L + 
-#       b_Y_A2 + `b_Y_A1:A2`,
-#     E_Y_00 = b_Y_Intercept + (b_L_Intercept)*b_Y_L) |>
-#   mutate(E_Y_diff = E_Y_11 - E_Y_00) |>
-#   select(E_Y_diff) |>
-#   summarise_draws()
-# 
-# # direct effect A1 naive estimate
-# direct_A1_est <- params_naive |> 
-#   select(b_A1) |>
-#   summarise_draws()
-```
 
 ## Compare true causal effects with empirical estimates
 
