@@ -100,27 +100,6 @@ Y_0 <- f_Y(A1, A2, L, U)
 (total_A1 <- mean(Y_1) - mean(Y_0))
 ```
 
-::: {.callout-caution collapse="true"}
-
-### Compute the total effect of A1 analytically
-
-$$
-\begin{aligned}
-& E(Y^{a_1=1}) - E(Y^{a_1=0})\\
-& = \dots \\
-& = \beta_{YA1} + \beta_{YL} \beta_{LA1} + \beta_{YA1} \left[ \Phi \left(\frac{\beta_{A2A1} + \beta_{A2L} \beta_{LA1}}{\sqrt{1 + \beta_{A2L}^2 + \beta_{A2L}^2 \beta_{LU}^2}}\right) - 0.5 \right] + \beta_{YA1A2} \ \Phi \left(\frac{\beta_{A2A1} + \beta_{A2L} \beta_{LA1}}{\sqrt{1 + \beta_{A2L}^2 + \beta_{A2L}^2 \beta_{LU}^2 }}\right) = \\
-& = 
-`r (b_Y_A1 + b_Y_L * b_L_A1) + b_Y_A2 * (pnorm((b_A2_A1 + b_A2_L * b_L_A1) / sqrt(1 + b_A2_L ^2 + b_A2_L ^2 * b_L_U^2)) - pnorm((0) / sqrt(1 + b_A2_L ^2 + b_A2_L ^2 * b_L_U^2))) + b_Y_A1A2 * pnorm((b_A2_A1 + b_A2_L * b_L_A1) / sqrt(1 + b_A2_L ^2 + b_A2_L ^2 * b_L_U^2))` \\
-\end{aligned}
-$$
-
-*Note:*
-
-- The equation was derived by ChatGPT (o3-mini-high).
-- The equation only holds for our concrete data generating process. It additionally assumes that 1) for all equations in the data generating process the intercepts are equal to 0, and 2) U and L are simulated with residual variance equal to 1.
-
-:::
-
 ### Simulate joint effect "always - never"
 
 $E(Y^{a_1=1, a_2=1}) - E(Y^{a_1=0, a_2=0})$
@@ -148,24 +127,6 @@ Y_00 <- f_Y(A1, A2, L, U)
 # E(Y_11) - E(Y_00)
 (joint_always <- mean(Y_11) - mean(Y_00))
 ```
-
-::: {.callout-caution collapse="true"}
-
-### Compute the joint effect "always - never" analytically
-
-$$
-\begin{aligned}
-& E(Y^{a_1=1, a_2=1}) - E(Y^{a_1=0, a_2=0})\\
-& = \dots \\
-& = \beta_{YA1} + \beta_{YA2} + \beta_{YA1A2} + \beta_{YL} \beta_{LA1} \\
-& = `r b_Y_A1 + b_Y_A2 + b_Y_A1A2 + b_Y_L * b_L_A1` \\
-\end{aligned}
-$$
-
-*Note:*
-
-- The equation only holds for our concrete data generating process. It additionally assumes that for all equations in the data generating process the intercepts are equal to 0.
-:::
 
 ### Simulate joint effect "early use"
 
