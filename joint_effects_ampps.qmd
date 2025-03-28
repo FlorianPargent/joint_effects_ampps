@@ -398,7 +398,7 @@ total_A1_est <- params_total |>
     E_Y_0 = {
       a1 <- rep(0, N)
       y <- rnorm(N, b_Intercept + b_A1 * a1, sd = sigma)
-    mean(y)}) |>
+      mean(y)}) |>
   mutate(E_Y_diff = E_Y_1 - E_Y_0) |>
   ungroup() |> select(E_Y_diff) |>
   summarise_draws()
@@ -411,14 +411,16 @@ joint_always_est <- params_joint |>
       a1 <- rep(1, N)
       l <- rnorm(N, b_L_Intercept + b_L_A1 * a1, sd = sigma_L)
       a2 <- rep(1, N)
-      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 + b_Y_L * l, sd = sigma_Y)
+      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 +
+          b_Y_L * l, sd = sigma_Y)
       mean(y)},
     E_Y_00 = {
       a1 <- rep(0, N)
       l <- rnorm(N, b_L_Intercept + b_L_A1 * a1, sd = sigma_L)
       a2 <- rep(0, N)
-      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 + b_Y_L * l, sd = sigma_Y)
-    mean(y)}) |>
+      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 +
+          b_Y_L * l, sd = sigma_Y)
+      mean(y)}) |>
   mutate(E_Y_diff = E_Y_11 - E_Y_00) |>
   ungroup() |> select(E_Y_diff) |>
   summarise_draws()
@@ -431,14 +433,16 @@ joint_early_est <- params_joint |>
       a1 <- rep(1, N)
       l <- rnorm(N, b_L_Intercept + b_L_A1 * a1, sd = sigma_L)
       a2 <- rep(0, N)
-      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 + b_Y_L * l, sd = sigma_Y)
+      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 +
+          b_Y_L * l, sd = sigma_Y)
       mean(y)},
     E_Y_00 = {
       a1 <- rep(0, N)
       l <- rnorm(N, b_L_Intercept + b_L_A1 * a1, sd = sigma_L)
       a2 <- rep(0, N)
-      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 + b_Y_L * l, sd = sigma_Y)
-    mean(y)}) |>
+      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 +
+          b_Y_L * l, sd = sigma_Y)
+      mean(y)}) |>
   mutate(E_Y_diff = E_Y_10 - E_Y_00) |>
   ungroup() |> select(E_Y_diff) |>
   summarise_draws()
@@ -451,14 +455,16 @@ joint_late_est <- params_joint |>
       a1 <- rep(0, N)
       l <- rnorm(N, b_L_Intercept + b_L_A1 * a1, sd = sigma_L)
       a2 <- rep(1, N)
-      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 + b_Y_L * l, sd = sigma_Y)
+      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 +
+          b_Y_L * l, sd = sigma_Y)
       mean(y)},
     E_Y_00 = {
       a1 <- rep(0, N)
       l <- rnorm(N, b_L_Intercept + b_L_A1 * a1, sd = sigma_L)
       a2 <- rep(0, N)
-      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 + b_Y_L * l, sd = sigma_Y)
-    mean(y)}) |>
+      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 +
+          b_Y_L * l, sd = sigma_Y)
+      mean(y)}) |>
   mutate(E_Y_diff = E_Y_01 - E_Y_00) |>
   ungroup() |> select(E_Y_diff) |>
   summarise_draws()
@@ -472,14 +478,16 @@ direct_always_est <- params_joint |>
       a1_0 <- rep(0, N)
       l <- rnorm(N, b_L_Intercept + b_L_A1 * a1_0, sd = sigma_L)
       a2 <- rep(1, N)
-      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 + b_Y_L * l, sd = sigma_Y)
+      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 +
+          b_Y_L * l, sd = sigma_Y)
       mean(y)},
     E_Y_00 = {
       a1 <- rep(0, N)
       l <- rnorm(N, b_L_Intercept + b_L_A1 * a1, sd = sigma_L)
       a2 <- rep(0, N)
-      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 + b_Y_L * l, sd = sigma_Y)
-    mean(y)}) |>
+      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 +
+          b_Y_L * l, sd = sigma_Y)
+      mean(y)}) |>
   mutate(E_Y_diff = E_Y_11 - E_Y_00) |>
   ungroup() |> select(E_Y_diff) |>
   summarise_draws()
@@ -493,14 +501,16 @@ direct_early_est <- params_joint |>
       a1_0 <- rep(0, N)
       l <- rnorm(N, b_L_Intercept + b_L_A1 * a1_0, sd = sigma_L)
       a2 <- rep(0, N)
-      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 + b_Y_L * l, sd = sigma_Y)
+      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 +
+          b_Y_L * l, sd = sigma_Y)
       mean(y)},
     E_Y_00 = {
       a1 <- rep(0, N)
       l <- rnorm(N, b_L_Intercept + b_L_A1 * a1, sd = sigma_L)
       a2 <- rep(0, N)
-      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 + b_Y_L * l, sd = sigma_Y)
-    mean(y)}) |>
+      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 +
+          b_Y_L * l, sd = sigma_Y)
+      mean(y)}) |>
   mutate(E_Y_diff = E_Y_10 - E_Y_00) |>
   ungroup() |> select(E_Y_diff) |>
   summarise_draws()
@@ -513,14 +523,16 @@ direct_late_est <- params_joint |>
       a1 <- rep(0, N)
       l <- rnorm(N, b_L_Intercept + b_L_A1 * a1, sd = sigma_L)
       a2 <- rep(1, N)
-      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 + b_Y_L * l, sd = sigma_Y)
+      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 +
+          b_Y_L * l, sd = sigma_Y)
       mean(y)},
     E_Y_00 = {
       a1 <- rep(0, N)
       l <- rnorm(N, b_L_Intercept + b_L_A1 * a1, sd = sigma_L)
       a2 <- rep(0, N)
-      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 + b_Y_L * l, sd = sigma_Y)
-    mean(y)}) |>
+      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 +
+          b_Y_L * l, sd = sigma_Y)
+      mean(y)}) |>
   mutate(E_Y_diff = E_Y_01 - E_Y_00) |>
   ungroup() |> select(E_Y_diff) |>
   summarise_draws()
@@ -534,14 +546,16 @@ direct_A1_est <- params_direct |>
       a1_0 <- rep(0, N)
       l <- rnorm(N, b_L_Intercept + b_L_A1 * a1_0, sd = sigma_L)
       a2 <- rbinom(N, size = 1, prob = pnorm(b_A2_Intercept + b_A2_A1 * a1_0 + b_A2_L * l))
-      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 + b_Y_L * l, sd = sigma_Y)
+      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 +
+          b_Y_L * l, sd = sigma_Y)
       mean(y)},
     E_Y_0 = {
       a1 <- rep(0, N)
       l <- rnorm(N, b_L_Intercept + b_L_A1 * a1, sd = sigma_L)
       a2 <- rbinom(N, size = 1, prob = pnorm(b_A2_Intercept + b_A2_A1 * a1 + b_A2_L * l))
-      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 + b_Y_L * l, sd = sigma_Y)
-    mean(y)}) |>
+      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 +
+          b_Y_L * l, sd = sigma_Y)
+      mean(y)}) |>
   mutate(E_Y_diff = E_Y_1 - E_Y_0) |>
   ungroup() |> select(E_Y_diff) |>
   summarise_draws()
@@ -554,7 +568,7 @@ direct_A1_est <- params_direct |>
 #| code-fold: true
 
 table <- tribble(
- ~"effect"                      ,~"true effect" ,~"estimate (med)"        ,~"ci (q5)"           ,~"ci (q95)",
+ ~"causal effect"               ,~"true effect" ,~"estimate (med)"        ,~"ci (q5)"           ,~"ci (q95)",
   "total effect A1"             , total_A1      , total_A1_est$median     , total_A1_est$q5     , total_A1_est$q95     ,
   "joint effect always - never" , joint_always  , joint_always_est$median , joint_always_est$q5 , joint_always_est$q95 ,
   "joint effect early use"      , joint_early   , joint_early_est$median  , joint_early_est$q5  , joint_early_est$q95  ,
