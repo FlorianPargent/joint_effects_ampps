@@ -1,0 +1,57 @@
+meta:
+  name:
+    full: Ludwig-Maximilians-Universität München
+    short: LMU
+  link: 
+    home: www.lmu.de
+    docs: www.lmu.de/de/die-lmu/struktur/zentrale-universitaetsverwaltung/kommunikation-und-presse/lmu-brand-guide/
+
+color:
+  palette:
+    green: "#00883A"
+    black: "#232323"
+    white: "#FFF"
+    dark-grey: "#626468"
+    medium-grey: "#C0C1C3"
+    light-grey: "#E6E6E7"
+    white-grey: "#F5F5F5"
+    blue: "#0F1987"
+    cyan: "#009FE3"
+    violet: "#8C4091"
+    red: "#D71919"
+    orange: "#F18700"
+  foreground: black
+  background: white
+  primary: green
+  secondary: dark-grey
+  tertiary: medium-grey
+  success: green
+  info: medium-grey
+  warning: orange
+  danger: red
+  light: white-grey
+  dark: dark-grey
+
+logo: 
+  medium: logo_methodenlehre.png
+  
+typography:
+  fonts:
+    - family: Roboto
+      source: google
+    - family: Roboto Mono
+      source: google
+  base: Roboto
+  headings: Roboto
+  link:
+    decoration: underline
+  # monospace: 
+  #   family: Roboto Mono
+  #   color: violet
+  #   background-color: white-grey
+  # monospace-inline:
+  #   color: violet
+  #   background-color: white-grey
+  # monospace-block:
+  #   color: black
+  #   background-color: white-grey

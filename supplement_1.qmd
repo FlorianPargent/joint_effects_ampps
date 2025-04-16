@@ -1,0 +1,236 @@
+---
+title: "Toy example: Causal effects of smartphone usage on sleep quality"
+authors: "Florian Pargent and Lukas Junker"
+date: today
+format: html
+---
+
+# Introduction
+
+# Demonstration in R
+
+## Load packages
+
+```{r}
+#| message: false
+#| warning: false
+
+library(tidyverse)
+library(dagitty)
+library(brms)
+library(cmdstanr)
+library(tidybayes)
+```
+
+## Specify the data generating process
+
+### Draw the DAG
+
+```{r}
+#| code-fold: true
+dag <- dagitty('dag{
+  A1 -> L <- U
+  A1 -> A2 <- L
+  A1 -> Y <- A2
+  L -> Y <- U
+  A1[pos="0,2"]
+  A2[pos="1,2"]
+  Y[pos="1.5,1.5"]
+  L[pos="0.5,1.5"]
+  U[pos="1,1"]
+  }')
+plot(dag)
+```
+
+### Specify functional relationships
+
+```{r}
+b_L_A1 <- 1
+b_L_U <- 1
+b_A2_A1 <- -3
+b_A2_L <- 0.5
+b_A2_U <- 0
+b_Y_A1 <- -0.1
+b_Y_A2 <- -3
+b_Y_L <- -1
+b_Y_A1A2 <- -0.5
+b_Y_U <- -2
+
+
+f_U <- function(){
+  rnorm(n)}
+f_A1 <- function(){
+  rbinom(n, size = 1, prob = 0.5)}
+f_L <- function(A1, U){
+  rnorm(n, mean = b_L_A1 * A1 + b_L_U * U)}
+f_A2 <- function(A1, L){
+  rbinom(n, size = 1, prob = pnorm(b_A2_A1 * A1 + b_A2_L* L + b_A2_U * U))}
+f_Y <- function(A1, A2, L, U){
+  rnorm(n, mean = b_Y_A1 * A1 + b_Y_A2 * A2 + b_Y_A1A2 * A1 * A2 + b_Y_L * L +
+      b_Y_U * U, sd = 0.1)} 
+```
+
+## Determine the true expected potential outcomes
+
+$E(Y^{a_1=0, a_2=0})$
+
+"never use"
+
+```{r}
+n <- 10000000
+set.seed(42)
+
+# Y_00: Y^{a_1=0, a_2=0}
+U <- f_U()
+A1 <- rep(0, n) # intervention
+L <- f_L(A1, U)
+A2 <- rep(0, n) # intervention
+Y_00 <- f_Y(A1, A2, L, U)
+
+# E(Y_00)
+(E_Y_00 <- mean(Y_00))
+```
+
+$E(Y^{a_1=1, a_2=1})$
+
+"always use"
+
+```{r}
+n <- 10000000
+set.seed(42)
+
+# Y_11: Y^{a_1=1, a_2=1}
+U <- f_U()
+A1 <- rep(1, n) # intervention
+L <- f_L(A1, U)
+A2 <- rep(1, n) # intervention
+Y_11 <- f_Y(A1, A2, L, U)
+
+# E(Y_11)
+(E_Y_11 <- mean(Y_11))
+```
+
+$E(Y^{a_1=1, a_2=0})$
+
+"early use"
+
+```{r}
+n <- 10000000
+set.seed(42)
+
+# Y_10: Y^{a_1=1, a_2=0}
+U <- f_U()
+A1 <- rep(1, n) # intervention
+L <- f_L(A1, U)
+A2 <- rep(0, n) # intervention
+Y_10 <- f_Y(A1, A2, L, U)
+
+# E(Y_11)
+(E_Y_10 <- mean(Y_10))
+```
+
+$E(Y^{a_1=0, a_2=1})$
+
+"late use"
+
+```{r}
+n <- 10000000
+set.seed(42)
+
+# Y_01: Y^{a_1=0, a_2=1}
+U <- f_U()
+A1 <- rep(0, n) # intervention
+L <- f_L(A1, U)
+A2 <- rep(1, n) # intervention
+Y_01 <- f_Y(A1, A2, L, U)
+
+# E(Y_01)
+(E_Y_01 <- mean(Y_01))
+```
+
+
+## Simulate dataset
+
+```{r}
+n <- 2000
+set.seed(42)
+
+U <- f_U()
+A1 <- f_A1()
+L <- f_L(A1, U)
+A2 <- f_A2(A1, L)
+Y <- f_Y(A1, A2, L, U)
+
+dat <- data.frame(A1, A2, L, Y)
+```
+
+## Fit statistical model with brms
+
+```{r}
+#| message: false
+
+set.seed(42)
+bf_L <- bf(L ~ A1)
+bf_Y <- bf(Y ~ A1 + A2 + A1:A2 + L)
+fit <- brm(bf_L + bf_Y + set_rescor(FALSE),
+  data = dat, chains = 4, cores = 4, backend = "cmdstanr")
+summary(fit)
+```
+
+## Estimate expected potential outcomes
+
+```{r}
+params <- tidy_draws(fit)
+N <- 10000
+
+E_Y_est <- params |> 
+  group_by(.draw) |>
+  mutate(
+    E_Y_00 = {
+      a1 <- rep(0, N)
+      l <- rnorm(N, b_L_Intercept + b_L_A1 * a1, sd = sigma_L)
+      a2 <- rep(0, N)
+      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 +
+          b_Y_L * l, sd = sigma_Y)
+      mean(y)},
+    E_Y_11 = {
+      a1 <- rep(1, N)
+      l <- rnorm(N, b_L_Intercept + b_L_A1 * a1, sd = sigma_L)
+      a2 <- rep(1, N)
+      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 +
+          b_Y_L * l, sd = sigma_Y)
+      mean(y)},
+    E_Y_10 = {
+      a1 <- rep(1, N)
+      l <- rnorm(N, b_L_Intercept + b_L_A1 * a1, sd = sigma_L)
+      a2 <- rep(0, N)
+      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 +
+          b_Y_L * l, sd = sigma_Y)
+      mean(y)},
+    E_Y_01 = {
+      a1 <- rep(0, N)
+      l <- rnorm(N, b_L_Intercept + b_L_A1 * a1, sd = sigma_L)
+      a2 <- rep(1, N)
+      y <- rnorm(N, b_Y_Intercept + b_Y_A1 * a1 + b_Y_A2 * a2 + `b_Y_A1:A2` * a1 * a2 +
+          b_Y_L * l, sd = sigma_Y)
+      mean(y)}) |>
+  ungroup() |> 
+  select(E_Y_00, E_Y_11, E_Y_10, E_Y_01) |>
+  summarise_draws()
+```
+
+## Compare true expected potential outcomes with the empirical estimates
+
+```{r}
+#| code-fold: true
+
+table <- tribble(
+ ~"potential outcome"  ,~"true value",~"estimate (med)"    ,~"ci (q5)"          ,~"ci (q95)",
+  "E(Y_00), never use" , E_Y_00      , pull(E_Y_est[1,3])  , pull(E_Y_est[1,6]) , pull(E_Y_est[1,7]),
+  "E(Y_11), always use", E_Y_11      , pull(E_Y_est[2,3])  , pull(E_Y_est[2,6]) , pull(E_Y_est[2,7]),
+  "E(Y_10), early use" , E_Y_10      , pull(E_Y_est[3,3])  , pull(E_Y_est[3,6]) , pull(E_Y_est[3,7]),
+  "E(Y_01), late use"  , E_Y_01      , pull(E_Y_est[4,3])  , pull(E_Y_est[4,6]) , pull(E_Y_est[4,7]),
+)
+knitr::kable(table)
+```
+

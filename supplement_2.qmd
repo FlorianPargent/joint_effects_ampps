@@ -545,5 +545,3 @@ knitr::kable(table)
 
 Note that the total and joint effects are estimated without bias, while the direct effects are biased because of the unobserved confounder U (except for the direct effect of "late use", which for our data generating process is equal to the joint effect of "late use").
 
-# References
-

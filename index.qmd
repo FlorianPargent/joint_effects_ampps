@@ -1,0 +1,17 @@
+---
+title: "Supplementary Materials for Junker et al. (2024): Joint Effects in Psychology"
+date: 2025-04-16
+date-modified: today
+date-format: iso
+---
+
+This is the companion website for the manuscript:
+
+>Junker, L., Schoedel, R., & Pargent, F. (2024). Towards a Clearer Understanding of Causal Estimands: The Importance of Joint Effects in Longitudinal Designs with Time-Varying Treatments. <https://doi.org/10.31234/osf.io/zmh5a>
+
+You can find the preprint on PsyArXiv [here](https://doi.org/10.31234/osf.io/zmh5a).
+
+This website contains the supplementary materials:
+
+- [Supplement 1](supplement_1.qmd): Toy example - Expected Potential Outcomes
+- [Supplement 2](supplement_2.qmd): Toy example - Causal Effects

@@ -1,0 +1,42 @@
+project:
+  type: website
+
+lang: en
+
+website:
+  title: "Joint effects in psychology"
+  search:
+    location: navbar
+    type: overlay
+  navbar:
+    left:
+      - file: supplement_1.qmd
+        text: Supplement 1
+      - file: supplement_2.qmd
+        text: Supplement 2
+  back-to-top-navigation: true
+  bread-crumbs: true
+
+author: 
+  - Lukas Junker
+  - Ramona Schoedel
+  - Florian Pargent
+
+license: "CC BY"
+
+format:
+  html:
+    theme: [brand, styles.scss]
+    code-copy: true
+    toc: true
+    citation:
+      type: article-journal
+      title: "Towards a Clearer Understanding of Causal Estimands: The Importance of Joint Effects in Longitudinal Designs with Time-Varying Treatments."
+      author: "Junker, L., Schoedel, R., & Pargent, F."
+      container-title: "PsyArXiv"
+      doi: "10.1177/25152459241287132"
+      issued: 2024
+
+execute: 
+  freeze: false
+
