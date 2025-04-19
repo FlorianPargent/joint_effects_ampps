@@ -5,13 +5,20 @@ date-modified: today
 date-format: iso
 ---
 
+---
+
 This is the companion website for the manuscript:
 
 >Junker, L., Schoedel, R., & Pargent, F. (2024). Towards a Clearer Understanding of Causal Estimands: The Importance of Joint Effects in Longitudinal Designs with Time-Varying Treatments. <https://doi.org/10.31234/osf.io/zmh5a>
 
 You can find the preprint on PsyArXiv [here](https://doi.org/10.31234/osf.io/zmh5a).
+You can find all code and materials [here]().
 
-This website contains the supplementary materials:
+---
 
-- [Supplement 1](supplement_1.qmd): Toy example - Expected Potential Outcomes
-- [Supplement 2](supplement_2.qmd): Toy example - Causal Effects
+The website contains the supplementary materials:
+
+- [Supplement 1](supplement_1.qmd): **Estimate expected potential outcomes in a hypothetical RCT**
+- [Supplement 2](supplement_2.qmd): **Estimate different causal effects in a hypothetical RCT**
+
+*Note:* [Supplement 1](supplement_1.qmd) computes *Table 1* from the manuscript, while [Supplement 2](supplement_2.qmd) extends our simulated example to various total, joint, and direct effects. 

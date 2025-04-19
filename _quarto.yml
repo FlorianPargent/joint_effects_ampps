@@ -4,7 +4,7 @@ project:
 lang: en
 
 website:
-  title: "Joint effects in psychology"
+  title: "Junker et al. (2024): Joint effects in psychology"
   search:
     location: navbar
     type: overlay
@@ -14,13 +14,27 @@ website:
         text: Supplement 1
       - file: supplement_2.qmd
         text: Supplement 2
+    tools:
+      - icon: github
+        href: https://github.com/FlorianPargent/joint_effects_ampps
   back-to-top-navigation: true
   bread-crumbs: true
 
 author: 
-  - Lukas Junker
-  - Ramona Schoedel
-  - Florian Pargent
+  - name: Lukas Junker
+    orcid: 0009-0005-2898-2709
+    email: lukas.junker@psy.lmu.de
+    affiliations:
+      - LMU Munich
+  - name: Ramona Schoedel
+    orcid: 0000-0001-7275-0626
+    affiliations:
+      - Charlotte Fresenius University, Munich
+      - LMU Munich
+  - name: Florian Pargent
+    orcid: 0000-0002-2388-553X
+    affiliations:
+      - LMU Munich
 
 license: "CC BY"
 

@@ -1,15 +1,21 @@
 ---
-title: "Toy example: Causal effects of smartphone usage on sleep quality"
-authors: "Florian Pargent and Lukas Junker"
-date: today
+title: "Supplement 1: Estimate expected potential outcomes in a hypothetical RCT"
 format: html
 ---
 
-# Introduction
+# Introduction of the hypothetical RCT
+
+In our manuscript, we introduce the following hypothetical RCT in the section *Different Estimands in a Longitudinal Study*:
+
+Consider a smartphone study in which participants are randomly assigned to use their smartphone from 8 PM to 10 PM ($t = 1$) or not. No intervention occurs afterward, which means that from 10 PM to midnight ($t = 2$), participants can decide for themselves whether to use their smartphone and this usage is passively recorded. We set $a_t=1$ if there was any smartphone usage during time frame $t$, while $a_t=0$ means that the smartphone was not used at all during $t$. At 10 PM, participants' rumination ($L$) is also measured, as it is hypothesized to be another mediator between smartphone usage and sleep quality. Sleep quality ($Y$), the final outcome of the study, is measured the following morning. @fig-dag presents a DAG corresponding to this RCT.
+
+Here in *Supplement 1*, we will demonstrate in R how we can simulate and estimate expected potential outcomes from this hypothetical RCT.
 
 # Demonstration in R
 
 ## Load packages
+
+For our demonstration, we need the following packages. The package versions we used are recorded in the *renv.lock* file in our code repository.
 
 ```{r}
 #| message: false
@@ -26,7 +32,11 @@ library(tidybayes)
 
 ### Draw the DAG
 
+The following DAG represents the assumed causal relationships for the hypothetical RCT discussed in the manuscript.
+
 ```{r}
+#| label: fig-dag
+#| fig-cap: DAG that corresponds to an RCT with repeated measurements. $U$ denotes unmeasured confounding, while $L$ and $A_2$ are measured mediators of the causal effect of $A_1$ on the end of study outcome $Y$. Since $A_1$ is randomized, there are no arrows pointing into it.
 #| code-fold: true
 dag <- dagitty('dag{
   A1 -> L <- U
@@ -42,7 +52,9 @@ dag <- dagitty('dag{
 plot(dag)
 ```
 
-### Specify functional relationships
+### Specify the functional relationships
+
+The DAG only specifies the causal relationships, e.g., $L$ is a function of $A_1$ and $U$. However, this information does not fully specify the data generating process. To simulate data, we must specify the exact functions that produce all variables. We use gaussian linear models for continuous variables ($L$ and $Y$) and a probit model for the binary variable $A_2$, while $A_1$ is fully randomized. To keep our example as simple as possible, we make the unlikely assumption that $U$ does not affect $A_2$.
 
 ```{r}
 b_L_A1 <- 1
@@ -72,9 +84,11 @@ f_Y <- function(A1, A2, L, U){
 
 ## Determine the true expected potential outcomes
 
-$E(Y^{a_1=0, a_2=0})$
+The manuscript focuses on joint effects, which in our example are a difference of 4 different expected potential outcomes. We will now determine the true value of all four potential outcomes using simulation. We always set $A_1$ and $A_2$ to the values chosen by the respective hypothetical intervention but produce the remaining variables according to the assumptions of our data generating process.
 
-"never use"
+### "Never use": $E(Y^{a_1=0, a_2=0})$
+
+We call the potential outcome $Y^{a_1=0, a_2=0}$ *"never use"* because it represents the sleep quality of a person that (by a hypothetical intervention) was forced not to use their smartphone on both time points. 
 
 ```{r}
 n <- 10000000
@@ -91,9 +105,9 @@ Y_00 <- f_Y(A1, A2, L, U)
 (E_Y_00 <- mean(Y_00))
 ```
 
-$E(Y^{a_1=1, a_2=1})$
+### "Always use": $E(Y^{a_1=1, a_2=1})$
 
-"always use"
+We call the potential outcome $Y^{a_1=1, a_2=1}$ *"always use"* because it represents the sleep quality of a person that (by a hypothetical intervention) was forced to use their smartphone on both time points. 
 
 ```{r}
 n <- 10000000
@@ -110,9 +124,9 @@ Y_11 <- f_Y(A1, A2, L, U)
 (E_Y_11 <- mean(Y_11))
 ```
 
-$E(Y^{a_1=1, a_2=0})$
+### "Early use": $E(Y^{a_1=1, a_2=0})$
 
-"early use"
+We call the potential outcome $Y^{a_1=1, a_2=0}$ *"early use"* because it represents the sleep quality of a person that (by a hypothetical intervention) was forced to use their smartphone on the first time point but not on the second time point. 
 
 ```{r}
 n <- 10000000
@@ -129,9 +143,9 @@ Y_10 <- f_Y(A1, A2, L, U)
 (E_Y_10 <- mean(Y_10))
 ```
 
-$E(Y^{a_1=0, a_2=1})$
+### "Late use": $E(Y^{a_1=0, a_2=1})$
 
-"late use"
+We call the potential outcome $Y^{a_1=0, a_2=1}$ *"late use"* because it represents the sleep quality of a person that (by a hypothetical intervention) was forced not to use their smartphone on the first time point but on the second time point. 
 
 ```{r}
 n <- 10000000
@@ -149,7 +163,9 @@ Y_01 <- f_Y(A1, A2, L, U)
 ```
 
 
-## Simulate dataset
+## Simulate a sample dataset
+
+We now simulate a single dataset from our assumed data generating process. Remember, this process assumes that the smartphone usage on $A_1$ is fully randomized, but participants can decide for themselves, whether they want to use their smartphone on $A_2$. 
 
 ```{r}
 n <- 2000
@@ -164,7 +180,9 @@ Y <- f_Y(A1, A2, L, U)
 dat <- data.frame(A1, A2, L, Y)
 ```
 
-## Fit statistical model with brms
+## Fit a statistical model with brms
+
+We now want to demonstrate how one could use the sample we just "collected" to estimate the expected potential outcomes we specified earlier. For estimation, we use Bayesian regression models fit with the {brms} package to compute the parametric g-formula. The correctly specified regression model based on our assumed data generating process looks as follows:
 
 ```{r}
 #| message: false
@@ -177,7 +195,11 @@ fit <- brm(bf_L + bf_Y + set_rescor(FALSE),
 summary(fit)
 ```
 
-## Estimate expected potential outcomes
+Note that the expected potential outcomes are not identical to the regression parameters. However, we can use these parameter to compute ubiased estimates.
+
+## Estimate the expected potential outcomes
+
+We first extract all parameter estimates from the model fit using the `tidy_draws` function from the {tidybayes} package. We use our assumptions of the data generating process to reproduce the expected potential outcomes. That means, we repeat the same simulation we already used to determin the true expected outcomes. But now, we do not use the true parameter values but instead the parameter estimates we obtained from fitting our statistical model to our single sample from the data generating process.
 
 ```{r}
 params <- tidy_draws(fit)
@@ -219,9 +241,14 @@ E_Y_est <- params |>
   summarise_draws()
 ```
 
-## Compare true expected potential outcomes with the empirical estimates
+Because we used Bayesian model estimation and extracted an approximation of the posterior distribution (4000 draws) for each model parameter, we not only get point estimates (posterior median) but can easily compute credibility intervals (symmetric .95 posterior intervals) for our estimates of the expected potential outcomes.
+
+# Table 1: Compare the true expected potential outcomes with their empirical estimates
+
+We can now compare the true values for the 4 expected potential outcomes with our estimates. The following table is presented in the manuscript as *Table 1*.
 
 ```{r}
+#| label: tab-po
 #| code-fold: true
 
 table <- tribble(
@@ -233,4 +260,12 @@ table <- tribble(
 )
 knitr::kable(table)
 ```
+
+Although this cannot be inferred with certainty from a single estimation, a full simulation study would show that the expected potential outcomes in our example can be estimated with minimal bias (depending on the bias-variance trade-off of the applied estimation technique).
+
+As we describe in the manuscript, a an average joint effect is a difference between two expected potential outcomes, e.g.:
+
+$E(Y^{a_1=1, a_2=1} - Y^{a_1=0, a_2=0}) = E(Y^{a_1=1, a_2=1}) - E(Y^{a_1=0, a_2=0}) = `r E_Y_11 - E_Y_00`$
+
+In [Supplement 2](supplement_2.qmd), we use the same hypothetical RCT to demonstrate how we can simulate and (try to) estimate different total, joint, and direct causal effects. 
 
