@@ -47,8 +47,9 @@ format:
       type: article-journal
       title: "Towards a Clearer Understanding of Causal Estimands: The Importance of Joint Effects in Longitudinal Designs with Time-Varying Treatments."
       author: "Junker, L., Schoedel, R., & Pargent, F."
+      id: "junker2024"
       container-title: "PsyArXiv"
-      doi: "10.1177/25152459241287132"
+      doi: "10.31234/osf.io/zmh5a"
       issued: 2024
 
 execute: 
