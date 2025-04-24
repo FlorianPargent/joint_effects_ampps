@@ -52,7 +52,7 @@ plot(dag)
 
 ### Specify the functional relationships
 
-To keep our example as simple as possible, we again make the unlikely assumption that $U$ does not affect $A_2$.
+To showcase joint effect estimation, we again simulate a scenario where $U$ affects $A_2$ only through measured $L$. We discuss situations in which this assumption may be plausible in psychological research—induced by *covariate-driven treatment assignment*—in the latter half of the manuscript.
 
 ```{r}
 b_L_A1 <- 1
@@ -76,7 +76,7 @@ f_L <- function(A1, U){
 f_A2 <- function(A1, L){
   rbinom(n, size = 1, prob = pnorm(b_A2_A1 * A1 + b_A2_L* L + b_A2_U * U))}
 f_Y <- function(A1, A2, L, U){
-  rnorm(n, mean = b_Y_A1 * A1 + b_Y_A2 * A2 + b_Y_A1A2 * A1 * A2 + b_Y_L * L +
+  rnorm(n, mean = 10 + b_Y_A1 * A1 + b_Y_A2 * A2 + b_Y_A1A2 * A1 * A2 + b_Y_L * L +
       b_Y_U * U, sd = 0.1)} 
 ```
 
@@ -312,21 +312,24 @@ dat <- data.frame(A1, A2, L, Y)
 
 ## Fit statistical models with brms
 
-For our hypothetical RCT, we need different statistical models to estimate our total, joint, and direct effects:
+In the hypothetical RCT, there was no randomization at $t = 2$. However, we can still estimate causal effects using our knowledge of the DAG. Causal effects can be retrieved under the assumptions of consistency, exchangeability, and positivity.
+
+Different statistical models are required to estimate various total, joint, and direct effects. To estimate the joint effect, we ensure exchangeability by leveraging the property that, given $L$, $A_2$ is independent of $U$: $P(A_2 = a_2 | L, U) = P(A_2 = a_2 | L)$.
+
 
 ```{r}
 #| message: false
 
 set.seed(42)
 fit_total <- brm(Y ~ A1,
-  data = dat, chains = 4, cores = 4, backend = "cmdstanr")
+  data = dat, chains = 4, cores = 4, backend = "cmdstanr", refresh = 0)
 summary(fit_total)
 
 set.seed(42)
 bf_L <- bf(L ~ A1)
 bf_Y <- bf(Y ~ A1 + A2 + A1:A2 + L)
 fit_joint <- brm(bf_L + bf_Y + set_rescor(FALSE),
-  data = dat, chains = 4, cores = 4, backend = "cmdstanr")
+  data = dat, chains = 4, cores = 4, backend = "cmdstanr", refresh = 0)
 summary(fit_joint)
 
 set.seed(42)
@@ -334,7 +337,7 @@ bf_L <- bf(L ~ A1)
 bf_A2 <- bf(A2 ~ A1 + L, family = bernoulli(link = probit))
 bf_Y <- bf(Y ~ A1 + A2 + A1:A2 + L)
 fit_direct <- brm(bf_L + bf_A2 + bf_Y + set_rescor(FALSE),
-  data = dat, chains = 4, cores = 4, backend = "cmdstanr")
+  data = dat, chains = 4, cores = 4, backend = "cmdstanr", refresh = 0)
 summary(fit_direct)
 ```
 

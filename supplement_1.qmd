@@ -54,7 +54,9 @@ plot(dag)
 
 ### Specify the functional relationships
 
-The DAG only specifies the causal relationships, e.g., $L$ is a function of $A_1$ and $U$. However, this information does not fully specify the data generating process. To simulate data, we must specify the exact functions that produce all variables. We use gaussian linear models for continuous variables ($L$ and $Y$) and a probit model for the binary variable $A_2$, while $A_1$ is fully randomized. To keep our example as simple as possible, we make the unlikely assumption that $U$ does not affect $A_2$.
+The DAG only specifies the causal relationships, e.g., $L$ is a function of $A_1$ and $U$. However, this information does not fully specify the data generating process. To simulate data, we must specify the exact functions that produce all variables. We use gaussian linear models for continuous variables ($L$ and $Y$) and a probit model for the binary variable $A_2$, while $A_1$ is fully randomized. 
+
+In our example, $U$ affects $A_2$ only through the measured variable $L$. While this assumption is unlikely to hold in real-world scenarios, it is required for joint-effect estimation. We discuss situations in which this assumption may be plausible in psychological research—induced by *covariate-driven treatment assignment*—in the latter half of the manuscript.
 
 ```{r}
 b_L_A1 <- 1
@@ -78,7 +80,7 @@ f_L <- function(A1, U){
 f_A2 <- function(A1, L){
   rbinom(n, size = 1, prob = pnorm(b_A2_A1 * A1 + b_A2_L* L + b_A2_U * U))}
 f_Y <- function(A1, A2, L, U){
-  rnorm(n, mean = b_Y_A1 * A1 + b_Y_A2 * A2 + b_Y_A1A2 * A1 * A2 + b_Y_L * L +
+  rnorm(n, mean = 10 + b_Y_A1 * A1 + b_Y_A2 * A2 + b_Y_A1A2 * A1 * A2 + b_Y_L * L +
       b_Y_U * U, sd = 0.1)} 
 ```
 
@@ -182,7 +184,9 @@ dat <- data.frame(A1, A2, L, Y)
 
 ## Fit a statistical model with brms
 
-We now want to demonstrate how one could use the sample we just "collected" to estimate the expected potential outcomes we specified earlier. For estimation, we use Bayesian regression models fit with the {brms} package to compute the parametric g-formula. The correctly specified regression model based on our assumed data generating process looks as follows:
+We now want to demonstrate how one could use the sample we just "collected" to estimate the expected potential outcomes we specified earlier. Potential Outcomes adn causal effects can be retrieved under the assumptions of consistency, exchangeability and positivity. For treatment regimes with interventions at both time points, we ensure exchangeability by leveraging the property that, given $L$, $A_2$ is independent of $U$: $P(A_2 = a_2 | L, U) = P(A_2 = a_2 | L)$.
+
+For estimation, we use Bayesian regression models fit with the {brms} package to compute the parametric g-formula. The correctly specified regression model based on our assumed data generating process looks as follows:
 
 ```{r}
 #| message: false
@@ -191,7 +195,7 @@ set.seed(42)
 bf_L <- bf(L ~ A1)
 bf_Y <- bf(Y ~ A1 + A2 + A1:A2 + L)
 fit <- brm(bf_L + bf_Y + set_rescor(FALSE),
-  data = dat, chains = 4, cores = 4, backend = "cmdstanr")
+  data = dat, chains = 4, cores = 4, backend = "cmdstanr", refresh = 0)
 summary(fit)
 ```
 
@@ -199,7 +203,7 @@ Note that the expected potential outcomes are not identical to the regression pa
 
 ## Estimate the expected potential outcomes
 
-We first extract all parameter estimates from the model fit using the `tidy_draws` function from the {tidybayes} package. We use our assumptions of the data generating process to reproduce the expected potential outcomes. That means, we repeat the same simulation we already used to determin the true expected outcomes. But now, we do not use the true parameter values but instead the parameter estimates we obtained from fitting our statistical model to our single sample from the data generating process.
+We first extract all parameter estimates from the model fit using the `tidy_draws` function from the {tidybayes} package. We use our assumptions of the data generating process to reproduce the expected potential outcomes. That means, we repeat the same simulation we already used to determine the true expected outcomes. But now, we do not use the true parameter values but instead the parameter estimates we obtained from fitting our statistical model to our single sample from the data generating process.
 
 ```{r}
 params <- tidy_draws(fit)
@@ -263,9 +267,9 @@ knitr::kable(table)
 
 Although this cannot be inferred with certainty from a single estimation, a full simulation study would show that the expected potential outcomes in our example can be estimated with minimal bias (depending on the bias-variance trade-off of the applied estimation technique).
 
-As we describe in the manuscript, a an average joint effect is a difference between two expected potential outcomes, e.g.:
+As we describe in the manuscript, a joint effect is a difference between two expected potential outcomes under a sequence of interventions, e.g.:
 
-$E(Y^{a_1=1, a_2=1} - Y^{a_1=0, a_2=0}) = E(Y^{a_1=1, a_2=1}) - E(Y^{a_1=0, a_2=0}) = `r E_Y_11 - E_Y_00`$
+$E(Y^{a_1=1, a_2=1} - Y^{a_1=0, a_2=0}) = `r E_Y_11 - E_Y_00`$
 
 In [Supplement 2](supplement_2.qmd), we use the same hypothetical RCT to demonstrate how we can simulate and (try to) estimate different total, joint, and direct causal effects. 
 
