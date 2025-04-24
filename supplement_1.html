@@ -314,7 +314,8 @@ Figure&nbsp;1: DAG that corresponds to an RCT with repeated measurements. <span 
 </section>
 <section id="specify-the-functional-relationships" class="level3">
 <h3 class="anchored" data-anchor-id="specify-the-functional-relationships">Specify the functional relationships</h3>
-<p>The DAG only specifies the causal relationships, e.g., <span class="math inline">\(L\)</span> is a function of <span class="math inline">\(A_1\)</span> and <span class="math inline">\(U\)</span>. However, this information does not fully specify the data generating process. To simulate data, we must specify the exact functions that produce all variables. We use gaussian linear models for continuous variables (<span class="math inline">\(L\)</span> and <span class="math inline">\(Y\)</span>) and a probit model for the binary variable <span class="math inline">\(A_2\)</span>, while <span class="math inline">\(A_1\)</span> is fully randomized. To keep our example as simple as possible, we make the unlikely assumption that <span class="math inline">\(U\)</span> does not affect <span class="math inline">\(A_2\)</span>.</p>
+<p>The DAG only specifies the causal relationships, e.g., <span class="math inline">\(L\)</span> is a function of <span class="math inline">\(A_1\)</span> and <span class="math inline">\(U\)</span>. However, this information does not fully specify the data generating process. To simulate data, we must specify the exact functions that produce all variables. We use gaussian linear models for continuous variables (<span class="math inline">\(L\)</span> and <span class="math inline">\(Y\)</span>) and a probit model for the binary variable <span class="math inline">\(A_2\)</span>, while <span class="math inline">\(A_1\)</span> is fully randomized.</p>
+<p>In our example, <span class="math inline">\(U\)</span> affects <span class="math inline">\(A_2\)</span> only through the measured variable <span class="math inline">\(L\)</span>. While this assumption is unlikely to hold in real-world scenarios, it is required for joint-effect estimation. We discuss situations in which this assumption may be plausible in psychological research—induced by <em>covariate-driven treatment assignment</em>—in the latter half of the manuscript.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>b_L_A1 <span class="ot">&lt;-</span> <span class="dv">1</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>b_L_U <span class="ot">&lt;-</span> <span class="dv">1</span></span>
@@ -337,7 +338,7 @@ Figure&nbsp;1: DAG that corresponds to an RCT with repeated measurements. <span 
 <span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>f_A2 <span class="ot">&lt;-</span> <span class="cf">function</span>(A1, L){</span>
 <span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rbinom</span>(n, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> <span class="fu">pnorm</span>(b_A2_A1 <span class="sc">*</span> A1 <span class="sc">+</span> b_A2_L<span class="sc">*</span> L <span class="sc">+</span> b_A2_U <span class="sc">*</span> U))}</span>
 <span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>f_Y <span class="ot">&lt;-</span> <span class="cf">function</span>(A1, A2, L, U){</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rnorm</span>(n, <span class="at">mean =</span> b_Y_A1 <span class="sc">*</span> A1 <span class="sc">+</span> b_Y_A2 <span class="sc">*</span> A2 <span class="sc">+</span> b_Y_A1A2 <span class="sc">*</span> A1 <span class="sc">*</span> A2 <span class="sc">+</span> b_Y_L <span class="sc">*</span> L <span class="sc">+</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rnorm</span>(n, <span class="at">mean =</span> <span class="dv">10</span> <span class="sc">+</span> b_Y_A1 <span class="sc">*</span> A1 <span class="sc">+</span> b_Y_A2 <span class="sc">*</span> A2 <span class="sc">+</span> b_Y_A1A2 <span class="sc">*</span> A1 <span class="sc">*</span> A2 <span class="sc">+</span> b_Y_L <span class="sc">*</span> L <span class="sc">+</span></span>
 <span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>      b_Y_U <span class="sc">*</span> U, <span class="at">sd =</span> <span class="fl">0.1</span>)} </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
@@ -362,7 +363,7 @@ Figure&nbsp;1: DAG that corresponds to an RCT with repeated measurements. <span 
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co"># E(Y_00)</span></span>
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>(E_Y_00 <span class="ot">&lt;-</span> <span class="fu">mean</span>(Y_00))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] -0.00146134</code></pre>
+<pre><code>[1] 9.998539</code></pre>
 </div>
 </div>
 </section>
@@ -383,7 +384,7 @@ Figure&nbsp;1: DAG that corresponds to an RCT with repeated measurements. <span 
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co"># E(Y_11)</span></span>
 <span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>(E_Y_11 <span class="ot">&lt;-</span> <span class="fu">mean</span>(Y_11))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] -4.601461</code></pre>
+<pre><code>[1] 5.398539</code></pre>
 </div>
 </div>
 </section>
@@ -404,7 +405,7 @@ Figure&nbsp;1: DAG that corresponds to an RCT with repeated measurements. <span 
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co"># E(Y_11)</span></span>
 <span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>(E_Y_10 <span class="ot">&lt;-</span> <span class="fu">mean</span>(Y_10))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] -1.101461</code></pre>
+<pre><code>[1] 8.898539</code></pre>
 </div>
 </div>
 </section>
@@ -425,7 +426,7 @@ Figure&nbsp;1: DAG that corresponds to an RCT with repeated measurements. <span 
 <span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co"># E(Y_01)</span></span>
 <span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>(E_Y_01 <span class="ot">&lt;-</span> <span class="fu">mean</span>(Y_01))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] -3.001461</code></pre>
+<pre><code>[1] 6.998539</code></pre>
 </div>
 </div>
 </section>
@@ -448,106 +449,19 @@ Figure&nbsp;1: DAG that corresponds to an RCT with repeated measurements. <span 
 </section>
 <section id="fit-a-statistical-model-with-brms" class="level2">
 <h2 class="anchored" data-anchor-id="fit-a-statistical-model-with-brms">Fit a statistical model with brms</h2>
-<p>We now want to demonstrate how one could use the sample we just “collected” to estimate the expected potential outcomes we specified earlier. For estimation, we use Bayesian regression models fit with the {brms} package to compute the parametric g-formula. The correctly specified regression model based on our assumed data generating process looks as follows:</p>
+<p>We now want to demonstrate how one could use the sample we just “collected” to estimate the expected potential outcomes we specified earlier. Potential Outcomes adn causal effects can be retrieved under the assumptions of consistency, exchangeability and positivity. For treatment regimes with interventions at both time points, we ensure exchangeability by leveraging the property that, given <span class="math inline">\(L\)</span> and <span class="math inline">\(A_1\)</span>, <span class="math inline">\(A_2\)</span> is independent of <span class="math inline">\(U\)</span>: <span class="math inline">\(P(A_2 = a_2 | A_1, L, U) = P(A_2 = a_2 | A_1, L)\)</span>.</p>
+<p>For estimation, we use Bayesian regression models fit with the {brms} package to compute the parametric g-formula. The correctly specified regression model based on our assumed data generating process looks as follows:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>bf_L <span class="ot">&lt;-</span> <span class="fu">bf</span>(L <span class="sc">~</span> A1)</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>bf_Y <span class="ot">&lt;-</span> <span class="fu">bf</span>(Y <span class="sc">~</span> A1 <span class="sc">+</span> A2 <span class="sc">+</span> A1<span class="sc">:</span>A2 <span class="sc">+</span> L)</span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">brm</span>(bf_L <span class="sc">+</span> bf_Y <span class="sc">+</span> <span class="fu">set_rescor</span>(<span class="cn">FALSE</span>),</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat, <span class="at">chains =</span> <span class="dv">4</span>, <span class="at">cores =</span> <span class="dv">4</span>, <span class="at">backend =</span> <span class="st">"cmdstanr"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat, <span class="at">chains =</span> <span class="dv">4</span>, <span class="at">cores =</span> <span class="dv">4</span>, <span class="at">backend =</span> <span class="st">"cmdstanr"</span>, <span class="at">refresh =</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Running MCMC with 4 parallel chains...
 
-Chain 1 Iteration:    1 / 2000 [  0%]  (Warmup) 
-Chain 1 Iteration:  100 / 2000 [  5%]  (Warmup) 
-Chain 1 Iteration:  200 / 2000 [ 10%]  (Warmup) 
-Chain 1 Iteration:  300 / 2000 [ 15%]  (Warmup) 
-Chain 1 Iteration:  400 / 2000 [ 20%]  (Warmup) 
-Chain 1 Iteration:  500 / 2000 [ 25%]  (Warmup) 
-Chain 1 Iteration:  600 / 2000 [ 30%]  (Warmup) 
-Chain 1 Iteration:  700 / 2000 [ 35%]  (Warmup) 
-Chain 1 Iteration:  800 / 2000 [ 40%]  (Warmup) 
-Chain 1 Iteration:  900 / 2000 [ 45%]  (Warmup) 
-Chain 1 Iteration: 1000 / 2000 [ 50%]  (Warmup) 
-Chain 1 Iteration: 1001 / 2000 [ 50%]  (Sampling) 
-Chain 1 Iteration: 1100 / 2000 [ 55%]  (Sampling) 
-Chain 1 Iteration: 1200 / 2000 [ 60%]  (Sampling) 
-Chain 1 Iteration: 1300 / 2000 [ 65%]  (Sampling) 
-Chain 1 Iteration: 1400 / 2000 [ 70%]  (Sampling) 
-Chain 1 Iteration: 1500 / 2000 [ 75%]  (Sampling) 
-Chain 1 Iteration: 1600 / 2000 [ 80%]  (Sampling) 
-Chain 2 Iteration:    1 / 2000 [  0%]  (Warmup) 
-Chain 2 Iteration:  100 / 2000 [  5%]  (Warmup) 
-Chain 2 Iteration:  200 / 2000 [ 10%]  (Warmup) 
-Chain 2 Iteration:  300 / 2000 [ 15%]  (Warmup) 
-Chain 2 Iteration:  400 / 2000 [ 20%]  (Warmup) 
-Chain 2 Iteration:  500 / 2000 [ 25%]  (Warmup) 
-Chain 2 Iteration:  600 / 2000 [ 30%]  (Warmup) 
-Chain 2 Iteration:  700 / 2000 [ 35%]  (Warmup) 
-Chain 2 Iteration:  800 / 2000 [ 40%]  (Warmup) 
-Chain 2 Iteration:  900 / 2000 [ 45%]  (Warmup) 
-Chain 2 Iteration: 1000 / 2000 [ 50%]  (Warmup) 
-Chain 2 Iteration: 1001 / 2000 [ 50%]  (Sampling) 
-Chain 2 Iteration: 1100 / 2000 [ 55%]  (Sampling) 
-Chain 2 Iteration: 1200 / 2000 [ 60%]  (Sampling) 
-Chain 2 Iteration: 1300 / 2000 [ 65%]  (Sampling) 
-Chain 2 Iteration: 1400 / 2000 [ 70%]  (Sampling) 
-Chain 2 Iteration: 1500 / 2000 [ 75%]  (Sampling) 
-Chain 2 Iteration: 1600 / 2000 [ 80%]  (Sampling) 
-Chain 2 Iteration: 1700 / 2000 [ 85%]  (Sampling) 
-Chain 2 Iteration: 1800 / 2000 [ 90%]  (Sampling) 
-Chain 3 Iteration:    1 / 2000 [  0%]  (Warmup) 
-Chain 3 Iteration:  100 / 2000 [  5%]  (Warmup) 
-Chain 3 Iteration:  200 / 2000 [ 10%]  (Warmup) 
-Chain 3 Iteration:  300 / 2000 [ 15%]  (Warmup) 
-Chain 3 Iteration:  400 / 2000 [ 20%]  (Warmup) 
-Chain 3 Iteration:  500 / 2000 [ 25%]  (Warmup) 
-Chain 3 Iteration:  600 / 2000 [ 30%]  (Warmup) 
-Chain 3 Iteration:  700 / 2000 [ 35%]  (Warmup) 
-Chain 3 Iteration:  800 / 2000 [ 40%]  (Warmup) 
-Chain 3 Iteration:  900 / 2000 [ 45%]  (Warmup) 
-Chain 3 Iteration: 1000 / 2000 [ 50%]  (Warmup) 
-Chain 3 Iteration: 1001 / 2000 [ 50%]  (Sampling) 
-Chain 3 Iteration: 1100 / 2000 [ 55%]  (Sampling) 
-Chain 3 Iteration: 1200 / 2000 [ 60%]  (Sampling) 
-Chain 3 Iteration: 1300 / 2000 [ 65%]  (Sampling) 
-Chain 3 Iteration: 1400 / 2000 [ 70%]  (Sampling) 
-Chain 3 Iteration: 1500 / 2000 [ 75%]  (Sampling) 
-Chain 3 Iteration: 1600 / 2000 [ 80%]  (Sampling) 
-Chain 3 Iteration: 1700 / 2000 [ 85%]  (Sampling) 
-Chain 4 Iteration:    1 / 2000 [  0%]  (Warmup) 
-Chain 4 Iteration:  100 / 2000 [  5%]  (Warmup) 
-Chain 4 Iteration:  200 / 2000 [ 10%]  (Warmup) 
-Chain 4 Iteration:  300 / 2000 [ 15%]  (Warmup) 
-Chain 4 Iteration:  400 / 2000 [ 20%]  (Warmup) 
-Chain 4 Iteration:  500 / 2000 [ 25%]  (Warmup) 
-Chain 4 Iteration:  600 / 2000 [ 30%]  (Warmup) 
-Chain 4 Iteration:  700 / 2000 [ 35%]  (Warmup) 
-Chain 4 Iteration:  800 / 2000 [ 40%]  (Warmup) 
-Chain 4 Iteration:  900 / 2000 [ 45%]  (Warmup) 
-Chain 4 Iteration: 1000 / 2000 [ 50%]  (Warmup) 
-Chain 4 Iteration: 1001 / 2000 [ 50%]  (Sampling) 
-Chain 4 Iteration: 1100 / 2000 [ 55%]  (Sampling) 
-Chain 4 Iteration: 1200 / 2000 [ 60%]  (Sampling) 
-Chain 4 Iteration: 1300 / 2000 [ 65%]  (Sampling) 
-Chain 4 Iteration: 1400 / 2000 [ 70%]  (Sampling) 
-Chain 4 Iteration: 1500 / 2000 [ 75%]  (Sampling) 
-Chain 4 Iteration: 1600 / 2000 [ 80%]  (Sampling) 
-Chain 1 Iteration: 1700 / 2000 [ 85%]  (Sampling) 
-Chain 1 Iteration: 1800 / 2000 [ 90%]  (Sampling) 
-Chain 1 Iteration: 1900 / 2000 [ 95%]  (Sampling) 
-Chain 1 Iteration: 2000 / 2000 [100%]  (Sampling) 
 Chain 1 finished in 0.2 seconds.
-Chain 2 Iteration: 1900 / 2000 [ 95%]  (Sampling) 
-Chain 2 Iteration: 2000 / 2000 [100%]  (Sampling) 
 Chain 2 finished in 0.2 seconds.
-Chain 3 Iteration: 1800 / 2000 [ 90%]  (Sampling) 
-Chain 3 Iteration: 1900 / 2000 [ 95%]  (Sampling) 
-Chain 3 Iteration: 2000 / 2000 [100%]  (Sampling) 
-Chain 4 Iteration: 1700 / 2000 [ 85%]  (Sampling) 
-Chain 4 Iteration: 1800 / 2000 [ 90%]  (Sampling) 
-Chain 4 Iteration: 1900 / 2000 [ 95%]  (Sampling) 
-Chain 4 Iteration: 2000 / 2000 [100%]  (Sampling) 
 Chain 3 finished in 0.2 seconds.
 Chain 4 finished in 0.2 seconds.
 
@@ -568,18 +482,18 @@ Formula: L ~ A1
 
 Regression Coefficients:
             Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-L_Intercept    -0.06      0.05    -0.15     0.03 1.00     6302     3282
-Y_Intercept    -0.06      0.07    -0.18     0.07 1.00     4865     3387
-L_A1            1.04      0.06     0.92     1.17 1.00     6140     2927
-Y_A1            0.95      0.09     0.78     1.13 1.00     3968     3316
-Y_A2           -2.92      0.10    -3.11    -2.74 1.00     4135     3580
-Y_L            -2.00      0.02    -2.05    -1.95 1.00     4708     3457
-Y_A1:A2        -0.26      0.28    -0.80     0.29 1.00     5943     3273
+L_Intercept    -0.06      0.04    -0.15     0.03 1.00     6379     3045
+Y_Intercept     9.94      0.07     9.81    10.07 1.00     3419     2984
+L_A1            1.04      0.06     0.92     1.17 1.00     6719     3107
+Y_A1            0.95      0.09     0.78     1.12 1.00     2967     2975
+Y_A2           -2.92      0.10    -3.11    -2.74 1.00     3263     3119
+Y_L            -2.00      0.02    -2.05    -1.95 1.00     4845     3227
+Y_A1:A2        -0.25      0.27    -0.78     0.29 1.00     5005     3428
 
 Further Distributional Parameters:
         Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-sigma_L     1.42      0.02     1.38     1.47 1.00     6592     2975
-sigma_Y     1.41      0.02     1.36     1.46 1.00     6739     3005
+sigma_L     1.42      0.02     1.38     1.47 1.00     7518     2878
+sigma_Y     1.41      0.02     1.37     1.45 1.00     7069     3101
 
 Draws were sampled using sample(hmc). For each parameter, Bulk_ESS
 and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -590,7 +504,7 @@ scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
 </section>
 <section id="estimate-the-expected-potential-outcomes" class="level2">
 <h2 class="anchored" data-anchor-id="estimate-the-expected-potential-outcomes">Estimate the expected potential outcomes</h2>
-<p>We first extract all parameter estimates from the model fit using the <code>tidy_draws</code> function from the {tidybayes} package. We use our assumptions of the data generating process to reproduce the expected potential outcomes. That means, we repeat the same simulation we already used to determin the true expected outcomes. But now, we do not use the true parameter values but instead the parameter estimates we obtained from fitting our statistical model to our single sample from the data generating process.</p>
+<p>We first extract all parameter estimates from the model fit using the <code>tidy_draws</code> function from the {tidybayes} package. We use our assumptions of the data generating process to reproduce the expected potential outcomes. That means, we repeat the same simulation we already used to determine the true expected outcomes. But now, we do not use the true parameter values but instead the parameter estimates we obtained from fitting our statistical model to our single sample from the data generating process.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>params <span class="ot">&lt;-</span> <span class="fu">tidy_draws</span>(fit)</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="dv">10000</span></span>
@@ -650,13 +564,6 @@ scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<colgroup>
-<col style="width: 29%">
-<col style="width: 16%">
-<col style="width: 22%">
-<col style="width: 16%">
-<col style="width: 16%">
-</colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: left;">potential outcome</th>
@@ -669,46 +576,46 @@ scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">E(Y_00), never use</td>
-<td style="text-align: right;">-0.0014613</td>
-<td style="text-align: right;">0.0582333</td>
-<td style="text-align: right;">-0.1301895</td>
-<td style="text-align: right;">0.2472379</td>
+<td style="text-align: right;">9.998539</td>
+<td style="text-align: right;">10.058332</td>
+<td style="text-align: right;">9.872703</td>
+<td style="text-align: right;">10.251214</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">E(Y_11), always use</td>
-<td style="text-align: right;">-4.6014613</td>
-<td style="text-align: right;">-4.2590261</td>
-<td style="text-align: right;">-4.7140597</td>
-<td style="text-align: right;">-3.7848674</td>
+<td style="text-align: right;">5.398539</td>
+<td style="text-align: right;">5.744775</td>
+<td style="text-align: right;">5.277823</td>
+<td style="text-align: right;">6.199982</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">E(Y_10), early use</td>
-<td style="text-align: right;">-1.1014613</td>
-<td style="text-align: right;">-1.0765052</td>
-<td style="text-align: right;">-1.2489750</td>
-<td style="text-align: right;">-0.9091309</td>
+<td style="text-align: right;">8.898539</td>
+<td style="text-align: right;">8.921236</td>
+<td style="text-align: right;">8.753859</td>
+<td style="text-align: right;">9.088567</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">E(Y_01), late use</td>
-<td style="text-align: right;">-3.0014613</td>
-<td style="text-align: right;">-2.8661685</td>
-<td style="text-align: right;">-3.0584214</td>
-<td style="text-align: right;">-2.6714808</td>
+<td style="text-align: right;">6.998539</td>
+<td style="text-align: right;">7.134024</td>
+<td style="text-align: right;">6.951243</td>
+<td style="text-align: right;">7.327404</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
 <p>Although this cannot be inferred with certainty from a single estimation, a full simulation study would show that the expected potential outcomes in our example can be estimated with minimal bias (depending on the bias-variance trade-off of the applied estimation technique).</p>
-<p>As we describe in the manuscript, a an average joint effect is a difference between two expected potential outcomes, e.g.:</p>
-<p><span class="math inline">\(E(Y^{a_1=1, a_2=1} - Y^{a_1=0, a_2=0}) = E(Y^{a_1=1, a_2=1}) - E(Y^{a_1=0, a_2=0}) = -4.6\)</span></p>
+<p>As we describe in the manuscript, a joint effect is a difference between two expected potential outcomes under a sequence of interventions, e.g.:</p>
+<p><span class="math inline">\(E(Y^{a_1=1, a_2=1} - Y^{a_1=0, a_2=0}) = -4.6\)</span></p>
 <p>In <a href="./supplement_2.html">Supplement 2</a>, we use the same hypothetical RCT to demonstrate how we can simulate and (try to) estimate different total, joint, and direct causal effects.</p>
 
 
 </section>
 
 <a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a><div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-reuse"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div class="quarto-appendix-contents"><div><a rel="license" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></div></div></section><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@article{junker2024,
-  author = {L., Schoedel, R., \&amp; Pargent, F. , Junker},
+  author = {Junker, Lukas and Schoedel, Ramona and Pargent, Florian},
   title = {Towards a {Clearer} {Understanding} of {Causal} {Estimands:}
     {The} {Importance} of {Joint} {Effects} in {Longitudinal} {Designs}
     with {Time-Varying} {Treatments.}},
@@ -719,10 +626,9 @@ scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
   langid = {en}
 }
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-junker2024" class="csl-entry quarto-appendix-citeas" role="listitem">
-L., Schoedel, R., &amp; Pargent, F., Junker. 2024. <span>“Towards a
-Clearer Understanding of Causal Estimands: The Importance of Joint
-Effects in Longitudinal Designs with Time-Varying Treatments.”</span>
-<em>PsyArXiv</em>. <a href="https://doi.org/10.31234/osf.io/zmh5a">https://doi.org/10.31234/osf.io/zmh5a</a>.
+Junker, L., Schoedel, R., &amp; Pargent, F. (2024). Towards a Clearer
+Understanding of Causal Estimands: The Importance of Joint Effects in
+Longitudinal Designs with Time-Varying Treatments. <em>PsyArXiv</em>. <a href="https://doi.org/10.31234/osf.io/zmh5a">https://doi.org/10.31234/osf.io/zmh5a</a>
 </div></div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {

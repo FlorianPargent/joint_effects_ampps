@@ -317,7 +317,7 @@ Figure&nbsp;1: DAG that corresponds to an RCT with repeated measurements. <span 
 </section>
 <section id="specify-the-functional-relationships" class="level3">
 <h3 class="anchored" data-anchor-id="specify-the-functional-relationships">Specify the functional relationships</h3>
-<p>To keep our example as simple as possible, we again make the unlikely assumption that <span class="math inline">\(U\)</span> does not affect <span class="math inline">\(A_2\)</span>.</p>
+<p>To showcase joint effect estimation, we again simulate a scenario where <span class="math inline">\(U\)</span> affects <span class="math inline">\(A_2\)</span> only through measured <span class="math inline">\(L\)</span>. We discuss situations in which this assumption may be plausible in psychological research—induced by <em>covariate-driven treatment assignment</em>—in the latter half of the manuscript.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>b_L_A1 <span class="ot">&lt;-</span> <span class="dv">1</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>b_L_U <span class="ot">&lt;-</span> <span class="dv">1</span></span>
@@ -340,7 +340,7 @@ Figure&nbsp;1: DAG that corresponds to an RCT with repeated measurements. <span 
 <span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>f_A2 <span class="ot">&lt;-</span> <span class="cf">function</span>(A1, L){</span>
 <span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rbinom</span>(n, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> <span class="fu">pnorm</span>(b_A2_A1 <span class="sc">*</span> A1 <span class="sc">+</span> b_A2_L<span class="sc">*</span> L <span class="sc">+</span> b_A2_U <span class="sc">*</span> U))}</span>
 <span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>f_Y <span class="ot">&lt;-</span> <span class="cf">function</span>(A1, A2, L, U){</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rnorm</span>(n, <span class="at">mean =</span> b_Y_A1 <span class="sc">*</span> A1 <span class="sc">+</span> b_Y_A2 <span class="sc">*</span> A2 <span class="sc">+</span> b_Y_A1A2 <span class="sc">*</span> A1 <span class="sc">*</span> A2 <span class="sc">+</span> b_Y_L <span class="sc">*</span> L <span class="sc">+</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rnorm</span>(n, <span class="at">mean =</span> <span class="dv">10</span> <span class="sc">+</span> b_Y_A1 <span class="sc">*</span> A1 <span class="sc">+</span> b_Y_A2 <span class="sc">*</span> A2 <span class="sc">+</span> b_Y_A1A2 <span class="sc">*</span> A1 <span class="sc">*</span> A2 <span class="sc">+</span> b_Y_L <span class="sc">*</span> L <span class="sc">+</span></span>
 <span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>      b_Y_U <span class="sc">*</span> U, <span class="at">sd =</span> <span class="fl">0.1</span>)} </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
@@ -598,102 +598,15 @@ Figure&nbsp;1: DAG that corresponds to an RCT with repeated measurements. <span 
 </section>
 <section id="fit-statistical-models-with-brms" class="level2">
 <h2 class="anchored" data-anchor-id="fit-statistical-models-with-brms">Fit statistical models with brms</h2>
-<p>For our hypothetical RCT, we need different statistical models to estimate our total, joint, and direct effects:</p>
+<p>In the hypothetical RCT, there was no randomization at <span class="math inline">\(t = 2\)</span>. However, we can still estimate causal effects using our knowledge of the DAG. Causal effects can be retrieved under the assumptions of consistency, exchangeability, and positivity.</p>
+<p>Different statistical models are required to estimate various total, joint, and direct effects. To estimate the joint effect, we ensure exchangeability by leveraging the property that, given <span class="math inline">\(L\)</span> and <span class="math inline">\(A_1\)</span>, <span class="math inline">\(A_2\)</span> is independent of <span class="math inline">\(U\)</span>: <span class="math inline">\(P(A_2 = a_2 | A_1, L, U) = P(A_2 = a_2 | A_1, L)\)</span>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>fit_total <span class="ot">&lt;-</span> <span class="fu">brm</span>(Y <span class="sc">~</span> A1,</span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat, <span class="at">chains =</span> <span class="dv">4</span>, <span class="at">cores =</span> <span class="dv">4</span>, <span class="at">backend =</span> <span class="st">"cmdstanr"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat, <span class="at">chains =</span> <span class="dv">4</span>, <span class="at">cores =</span> <span class="dv">4</span>, <span class="at">backend =</span> <span class="st">"cmdstanr"</span>, <span class="at">refresh =</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Running MCMC with 4 parallel chains...
 
-Chain 1 Iteration:    1 / 2000 [  0%]  (Warmup) 
-Chain 1 Iteration:  100 / 2000 [  5%]  (Warmup) 
-Chain 1 Iteration:  200 / 2000 [ 10%]  (Warmup) 
-Chain 1 Iteration:  300 / 2000 [ 15%]  (Warmup) 
-Chain 1 Iteration:  400 / 2000 [ 20%]  (Warmup) 
-Chain 1 Iteration:  500 / 2000 [ 25%]  (Warmup) 
-Chain 1 Iteration:  600 / 2000 [ 30%]  (Warmup) 
-Chain 1 Iteration:  700 / 2000 [ 35%]  (Warmup) 
-Chain 1 Iteration:  800 / 2000 [ 40%]  (Warmup) 
-Chain 1 Iteration:  900 / 2000 [ 45%]  (Warmup) 
-Chain 1 Iteration: 1000 / 2000 [ 50%]  (Warmup) 
-Chain 1 Iteration: 1001 / 2000 [ 50%]  (Sampling) 
-Chain 1 Iteration: 1100 / 2000 [ 55%]  (Sampling) 
-Chain 1 Iteration: 1200 / 2000 [ 60%]  (Sampling) 
-Chain 1 Iteration: 1300 / 2000 [ 65%]  (Sampling) 
-Chain 1 Iteration: 1400 / 2000 [ 70%]  (Sampling) 
-Chain 1 Iteration: 1500 / 2000 [ 75%]  (Sampling) 
-Chain 1 Iteration: 1600 / 2000 [ 80%]  (Sampling) 
-Chain 1 Iteration: 1700 / 2000 [ 85%]  (Sampling) 
-Chain 1 Iteration: 1800 / 2000 [ 90%]  (Sampling) 
-Chain 1 Iteration: 1900 / 2000 [ 95%]  (Sampling) 
-Chain 1 Iteration: 2000 / 2000 [100%]  (Sampling) 
-Chain 2 Iteration:    1 / 2000 [  0%]  (Warmup) 
-Chain 2 Iteration:  100 / 2000 [  5%]  (Warmup) 
-Chain 2 Iteration:  200 / 2000 [ 10%]  (Warmup) 
-Chain 2 Iteration:  300 / 2000 [ 15%]  (Warmup) 
-Chain 2 Iteration:  400 / 2000 [ 20%]  (Warmup) 
-Chain 2 Iteration:  500 / 2000 [ 25%]  (Warmup) 
-Chain 2 Iteration:  600 / 2000 [ 30%]  (Warmup) 
-Chain 2 Iteration:  700 / 2000 [ 35%]  (Warmup) 
-Chain 2 Iteration:  800 / 2000 [ 40%]  (Warmup) 
-Chain 2 Iteration:  900 / 2000 [ 45%]  (Warmup) 
-Chain 2 Iteration: 1000 / 2000 [ 50%]  (Warmup) 
-Chain 2 Iteration: 1001 / 2000 [ 50%]  (Sampling) 
-Chain 2 Iteration: 1100 / 2000 [ 55%]  (Sampling) 
-Chain 2 Iteration: 1200 / 2000 [ 60%]  (Sampling) 
-Chain 2 Iteration: 1300 / 2000 [ 65%]  (Sampling) 
-Chain 2 Iteration: 1400 / 2000 [ 70%]  (Sampling) 
-Chain 2 Iteration: 1500 / 2000 [ 75%]  (Sampling) 
-Chain 2 Iteration: 1600 / 2000 [ 80%]  (Sampling) 
-Chain 2 Iteration: 1700 / 2000 [ 85%]  (Sampling) 
-Chain 2 Iteration: 1800 / 2000 [ 90%]  (Sampling) 
-Chain 2 Iteration: 1900 / 2000 [ 95%]  (Sampling) 
-Chain 2 Iteration: 2000 / 2000 [100%]  (Sampling) 
-Chain 3 Iteration:    1 / 2000 [  0%]  (Warmup) 
-Chain 3 Iteration:  100 / 2000 [  5%]  (Warmup) 
-Chain 3 Iteration:  200 / 2000 [ 10%]  (Warmup) 
-Chain 3 Iteration:  300 / 2000 [ 15%]  (Warmup) 
-Chain 3 Iteration:  400 / 2000 [ 20%]  (Warmup) 
-Chain 3 Iteration:  500 / 2000 [ 25%]  (Warmup) 
-Chain 3 Iteration:  600 / 2000 [ 30%]  (Warmup) 
-Chain 3 Iteration:  700 / 2000 [ 35%]  (Warmup) 
-Chain 3 Iteration:  800 / 2000 [ 40%]  (Warmup) 
-Chain 3 Iteration:  900 / 2000 [ 45%]  (Warmup) 
-Chain 3 Iteration: 1000 / 2000 [ 50%]  (Warmup) 
-Chain 3 Iteration: 1001 / 2000 [ 50%]  (Sampling) 
-Chain 3 Iteration: 1100 / 2000 [ 55%]  (Sampling) 
-Chain 3 Iteration: 1200 / 2000 [ 60%]  (Sampling) 
-Chain 3 Iteration: 1300 / 2000 [ 65%]  (Sampling) 
-Chain 3 Iteration: 1400 / 2000 [ 70%]  (Sampling) 
-Chain 3 Iteration: 1500 / 2000 [ 75%]  (Sampling) 
-Chain 3 Iteration: 1600 / 2000 [ 80%]  (Sampling) 
-Chain 3 Iteration: 1700 / 2000 [ 85%]  (Sampling) 
-Chain 3 Iteration: 1800 / 2000 [ 90%]  (Sampling) 
-Chain 3 Iteration: 1900 / 2000 [ 95%]  (Sampling) 
-Chain 3 Iteration: 2000 / 2000 [100%]  (Sampling) 
-Chain 4 Iteration:    1 / 2000 [  0%]  (Warmup) 
-Chain 4 Iteration:  100 / 2000 [  5%]  (Warmup) 
-Chain 4 Iteration:  200 / 2000 [ 10%]  (Warmup) 
-Chain 4 Iteration:  300 / 2000 [ 15%]  (Warmup) 
-Chain 4 Iteration:  400 / 2000 [ 20%]  (Warmup) 
-Chain 4 Iteration:  500 / 2000 [ 25%]  (Warmup) 
-Chain 4 Iteration:  600 / 2000 [ 30%]  (Warmup) 
-Chain 4 Iteration:  700 / 2000 [ 35%]  (Warmup) 
-Chain 4 Iteration:  800 / 2000 [ 40%]  (Warmup) 
-Chain 4 Iteration:  900 / 2000 [ 45%]  (Warmup) 
-Chain 4 Iteration: 1000 / 2000 [ 50%]  (Warmup) 
-Chain 4 Iteration: 1001 / 2000 [ 50%]  (Sampling) 
-Chain 4 Iteration: 1100 / 2000 [ 55%]  (Sampling) 
-Chain 4 Iteration: 1200 / 2000 [ 60%]  (Sampling) 
-Chain 4 Iteration: 1300 / 2000 [ 65%]  (Sampling) 
-Chain 4 Iteration: 1400 / 2000 [ 70%]  (Sampling) 
-Chain 4 Iteration: 1500 / 2000 [ 75%]  (Sampling) 
-Chain 4 Iteration: 1600 / 2000 [ 80%]  (Sampling) 
-Chain 4 Iteration: 1700 / 2000 [ 85%]  (Sampling) 
-Chain 4 Iteration: 1800 / 2000 [ 90%]  (Sampling) 
-Chain 4 Iteration: 1900 / 2000 [ 95%]  (Sampling) 
-Chain 4 Iteration: 2000 / 2000 [100%]  (Sampling) 
 Chain 1 finished in 0.1 seconds.
 Chain 2 finished in 0.1 seconds.
 Chain 3 finished in 0.1 seconds.
@@ -714,12 +627,12 @@ Formula: Y ~ A1
 
 Regression Coefficients:
           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-Intercept    -1.38      0.11    -1.60    -1.16 1.00     4682     3101
-A1            0.22      0.16    -0.10     0.53 1.00     4572     2915
+Intercept     8.62      0.12     8.38     8.85 1.00     3669     2699
+A1            0.22      0.16    -0.10     0.55 1.00     4111     2991
 
 Further Distributional Parameters:
       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-sigma     3.67      0.06     3.56     3.79 1.00     5777     3043
+sigma     3.67      0.06     3.56     3.79 1.00     4181     3032
 
 Draws were sampled using sample(hmc). For each parameter, Bulk_ESS
 and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -729,98 +642,10 @@ scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>bf_L <span class="ot">&lt;-</span> <span class="fu">bf</span>(L <span class="sc">~</span> A1)</span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>bf_Y <span class="ot">&lt;-</span> <span class="fu">bf</span>(Y <span class="sc">~</span> A1 <span class="sc">+</span> A2 <span class="sc">+</span> A1<span class="sc">:</span>A2 <span class="sc">+</span> L)</span>
 <span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>fit_joint <span class="ot">&lt;-</span> <span class="fu">brm</span>(bf_L <span class="sc">+</span> bf_Y <span class="sc">+</span> <span class="fu">set_rescor</span>(<span class="cn">FALSE</span>),</span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat, <span class="at">chains =</span> <span class="dv">4</span>, <span class="at">cores =</span> <span class="dv">4</span>, <span class="at">backend =</span> <span class="st">"cmdstanr"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat, <span class="at">chains =</span> <span class="dv">4</span>, <span class="at">cores =</span> <span class="dv">4</span>, <span class="at">backend =</span> <span class="st">"cmdstanr"</span>, <span class="at">refresh =</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Running MCMC with 4 parallel chains...
 
-Chain 1 Iteration:    1 / 2000 [  0%]  (Warmup) 
-Chain 1 Iteration:  100 / 2000 [  5%]  (Warmup) 
-Chain 1 Iteration:  200 / 2000 [ 10%]  (Warmup) 
-Chain 1 Iteration:  300 / 2000 [ 15%]  (Warmup) 
-Chain 1 Iteration:  400 / 2000 [ 20%]  (Warmup) 
-Chain 1 Iteration:  500 / 2000 [ 25%]  (Warmup) 
-Chain 1 Iteration:  600 / 2000 [ 30%]  (Warmup) 
-Chain 1 Iteration:  700 / 2000 [ 35%]  (Warmup) 
-Chain 1 Iteration:  800 / 2000 [ 40%]  (Warmup) 
-Chain 1 Iteration:  900 / 2000 [ 45%]  (Warmup) 
-Chain 1 Iteration: 1000 / 2000 [ 50%]  (Warmup) 
-Chain 1 Iteration: 1001 / 2000 [ 50%]  (Sampling) 
-Chain 1 Iteration: 1100 / 2000 [ 55%]  (Sampling) 
-Chain 1 Iteration: 1200 / 2000 [ 60%]  (Sampling) 
-Chain 1 Iteration: 1300 / 2000 [ 65%]  (Sampling) 
-Chain 1 Iteration: 1400 / 2000 [ 70%]  (Sampling) 
-Chain 1 Iteration: 1500 / 2000 [ 75%]  (Sampling) 
-Chain 2 Iteration:    1 / 2000 [  0%]  (Warmup) 
-Chain 2 Iteration:  100 / 2000 [  5%]  (Warmup) 
-Chain 2 Iteration:  200 / 2000 [ 10%]  (Warmup) 
-Chain 2 Iteration:  300 / 2000 [ 15%]  (Warmup) 
-Chain 2 Iteration:  400 / 2000 [ 20%]  (Warmup) 
-Chain 2 Iteration:  500 / 2000 [ 25%]  (Warmup) 
-Chain 2 Iteration:  600 / 2000 [ 30%]  (Warmup) 
-Chain 2 Iteration:  700 / 2000 [ 35%]  (Warmup) 
-Chain 2 Iteration:  800 / 2000 [ 40%]  (Warmup) 
-Chain 2 Iteration:  900 / 2000 [ 45%]  (Warmup) 
-Chain 2 Iteration: 1000 / 2000 [ 50%]  (Warmup) 
-Chain 2 Iteration: 1001 / 2000 [ 50%]  (Sampling) 
-Chain 2 Iteration: 1100 / 2000 [ 55%]  (Sampling) 
-Chain 2 Iteration: 1200 / 2000 [ 60%]  (Sampling) 
-Chain 2 Iteration: 1300 / 2000 [ 65%]  (Sampling) 
-Chain 2 Iteration: 1400 / 2000 [ 70%]  (Sampling) 
-Chain 2 Iteration: 1500 / 2000 [ 75%]  (Sampling) 
-Chain 3 Iteration:    1 / 2000 [  0%]  (Warmup) 
-Chain 3 Iteration:  100 / 2000 [  5%]  (Warmup) 
-Chain 3 Iteration:  200 / 2000 [ 10%]  (Warmup) 
-Chain 3 Iteration:  300 / 2000 [ 15%]  (Warmup) 
-Chain 3 Iteration:  400 / 2000 [ 20%]  (Warmup) 
-Chain 3 Iteration:  500 / 2000 [ 25%]  (Warmup) 
-Chain 3 Iteration:  600 / 2000 [ 30%]  (Warmup) 
-Chain 3 Iteration:  700 / 2000 [ 35%]  (Warmup) 
-Chain 3 Iteration:  800 / 2000 [ 40%]  (Warmup) 
-Chain 3 Iteration:  900 / 2000 [ 45%]  (Warmup) 
-Chain 3 Iteration: 1000 / 2000 [ 50%]  (Warmup) 
-Chain 3 Iteration: 1001 / 2000 [ 50%]  (Sampling) 
-Chain 3 Iteration: 1100 / 2000 [ 55%]  (Sampling) 
-Chain 3 Iteration: 1200 / 2000 [ 60%]  (Sampling) 
-Chain 4 Iteration:    1 / 2000 [  0%]  (Warmup) 
-Chain 4 Iteration:  100 / 2000 [  5%]  (Warmup) 
-Chain 4 Iteration:  200 / 2000 [ 10%]  (Warmup) 
-Chain 4 Iteration:  300 / 2000 [ 15%]  (Warmup) 
-Chain 4 Iteration:  400 / 2000 [ 20%]  (Warmup) 
-Chain 4 Iteration:  500 / 2000 [ 25%]  (Warmup) 
-Chain 4 Iteration:  600 / 2000 [ 30%]  (Warmup) 
-Chain 4 Iteration:  700 / 2000 [ 35%]  (Warmup) 
-Chain 4 Iteration:  800 / 2000 [ 40%]  (Warmup) 
-Chain 4 Iteration:  900 / 2000 [ 45%]  (Warmup) 
-Chain 4 Iteration: 1000 / 2000 [ 50%]  (Warmup) 
-Chain 4 Iteration: 1001 / 2000 [ 50%]  (Sampling) 
-Chain 4 Iteration: 1100 / 2000 [ 55%]  (Sampling) 
-Chain 4 Iteration: 1200 / 2000 [ 60%]  (Sampling) 
-Chain 1 Iteration: 1600 / 2000 [ 80%]  (Sampling) 
-Chain 1 Iteration: 1700 / 2000 [ 85%]  (Sampling) 
-Chain 1 Iteration: 1800 / 2000 [ 90%]  (Sampling) 
-Chain 1 Iteration: 1900 / 2000 [ 95%]  (Sampling) 
-Chain 1 Iteration: 2000 / 2000 [100%]  (Sampling) 
-Chain 2 Iteration: 1600 / 2000 [ 80%]  (Sampling) 
-Chain 2 Iteration: 1700 / 2000 [ 85%]  (Sampling) 
-Chain 2 Iteration: 1800 / 2000 [ 90%]  (Sampling) 
-Chain 2 Iteration: 1900 / 2000 [ 95%]  (Sampling) 
-Chain 2 Iteration: 2000 / 2000 [100%]  (Sampling) 
-Chain 3 Iteration: 1300 / 2000 [ 65%]  (Sampling) 
-Chain 3 Iteration: 1400 / 2000 [ 70%]  (Sampling) 
-Chain 3 Iteration: 1500 / 2000 [ 75%]  (Sampling) 
-Chain 3 Iteration: 1600 / 2000 [ 80%]  (Sampling) 
-Chain 3 Iteration: 1700 / 2000 [ 85%]  (Sampling) 
-Chain 3 Iteration: 1800 / 2000 [ 90%]  (Sampling) 
-Chain 3 Iteration: 1900 / 2000 [ 95%]  (Sampling) 
-Chain 3 Iteration: 2000 / 2000 [100%]  (Sampling) 
-Chain 4 Iteration: 1300 / 2000 [ 65%]  (Sampling) 
-Chain 4 Iteration: 1400 / 2000 [ 70%]  (Sampling) 
-Chain 4 Iteration: 1500 / 2000 [ 75%]  (Sampling) 
-Chain 4 Iteration: 1600 / 2000 [ 80%]  (Sampling) 
-Chain 4 Iteration: 1700 / 2000 [ 85%]  (Sampling) 
-Chain 4 Iteration: 1800 / 2000 [ 90%]  (Sampling) 
-Chain 4 Iteration: 1900 / 2000 [ 95%]  (Sampling) 
-Chain 4 Iteration: 2000 / 2000 [100%]  (Sampling) 
 Chain 1 finished in 0.2 seconds.
 Chain 2 finished in 0.2 seconds.
 Chain 3 finished in 0.2 seconds.
@@ -843,18 +668,18 @@ Formula: L ~ A1
 
 Regression Coefficients:
             Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-L_Intercept    -0.06      0.05    -0.15     0.03 1.00     6302     3282
-Y_Intercept    -0.06      0.07    -0.18     0.07 1.00     4865     3387
-L_A1            1.04      0.06     0.92     1.17 1.00     6140     2927
-Y_A1            0.95      0.09     0.78     1.13 1.00     3968     3316
-Y_A2           -2.92      0.10    -3.11    -2.74 1.00     4135     3580
-Y_L            -2.00      0.02    -2.05    -1.95 1.00     4708     3457
-Y_A1:A2        -0.26      0.28    -0.80     0.29 1.00     5943     3273
+L_Intercept    -0.06      0.04    -0.15     0.03 1.00     6379     3045
+Y_Intercept     9.94      0.07     9.81    10.07 1.00     3419     2984
+L_A1            1.04      0.06     0.92     1.17 1.00     6719     3107
+Y_A1            0.95      0.09     0.78     1.12 1.00     2967     2975
+Y_A2           -2.92      0.10    -3.11    -2.74 1.00     3263     3119
+Y_L            -2.00      0.02    -2.05    -1.95 1.00     4845     3227
+Y_A1:A2        -0.25      0.27    -0.78     0.29 1.00     5005     3428
 
 Further Distributional Parameters:
         Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-sigma_L     1.42      0.02     1.38     1.47 1.00     6592     2975
-sigma_Y     1.41      0.02     1.36     1.46 1.00     6739     3005
+sigma_L     1.42      0.02     1.38     1.47 1.00     7518     2878
+sigma_Y     1.41      0.02     1.37     1.45 1.00     7069     3101
 
 Draws were sampled using sample(hmc). For each parameter, Bulk_ESS
 and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -865,107 +690,19 @@ scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
 <span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>bf_A2 <span class="ot">&lt;-</span> <span class="fu">bf</span>(A2 <span class="sc">~</span> A1 <span class="sc">+</span> L, <span class="at">family =</span> <span class="fu">bernoulli</span>(<span class="at">link =</span> probit))</span>
 <span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>bf_Y <span class="ot">&lt;-</span> <span class="fu">bf</span>(Y <span class="sc">~</span> A1 <span class="sc">+</span> A2 <span class="sc">+</span> A1<span class="sc">:</span>A2 <span class="sc">+</span> L)</span>
 <span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>fit_direct <span class="ot">&lt;-</span> <span class="fu">brm</span>(bf_L <span class="sc">+</span> bf_A2 <span class="sc">+</span> bf_Y <span class="sc">+</span> <span class="fu">set_rescor</span>(<span class="cn">FALSE</span>),</span>
-<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat, <span class="at">chains =</span> <span class="dv">4</span>, <span class="at">cores =</span> <span class="dv">4</span>, <span class="at">backend =</span> <span class="st">"cmdstanr"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat, <span class="at">chains =</span> <span class="dv">4</span>, <span class="at">cores =</span> <span class="dv">4</span>, <span class="at">backend =</span> <span class="st">"cmdstanr"</span>, <span class="at">refresh =</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Running MCMC with 4 parallel chains...</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Chain 1 Iteration:    1 / 2000 [  0%]  (Warmup) 
-Chain 2 Iteration:    1 / 2000 [  0%]  (Warmup) 
-Chain 3 Iteration:    1 / 2000 [  0%]  (Warmup) 
-Chain 4 Iteration:    1 / 2000 [  0%]  (Warmup) 
-Chain 1 Iteration:  100 / 2000 [  5%]  (Warmup) 
-Chain 2 Iteration:  100 / 2000 [  5%]  (Warmup) 
-Chain 3 Iteration:  100 / 2000 [  5%]  (Warmup) 
-Chain 4 Iteration:  100 / 2000 [  5%]  (Warmup) 
-Chain 1 Iteration:  200 / 2000 [ 10%]  (Warmup) 
-Chain 2 Iteration:  200 / 2000 [ 10%]  (Warmup) 
-Chain 3 Iteration:  200 / 2000 [ 10%]  (Warmup) 
-Chain 4 Iteration:  200 / 2000 [ 10%]  (Warmup) 
-Chain 1 Iteration:  300 / 2000 [ 15%]  (Warmup) 
-Chain 2 Iteration:  300 / 2000 [ 15%]  (Warmup) 
-Chain 3 Iteration:  300 / 2000 [ 15%]  (Warmup) 
-Chain 1 Iteration:  400 / 2000 [ 20%]  (Warmup) 
-Chain 2 Iteration:  400 / 2000 [ 20%]  (Warmup) 
-Chain 3 Iteration:  400 / 2000 [ 20%]  (Warmup) 
-Chain 4 Iteration:  300 / 2000 [ 15%]  (Warmup) 
-Chain 4 Iteration:  400 / 2000 [ 20%]  (Warmup) 
-Chain 1 Iteration:  500 / 2000 [ 25%]  (Warmup) 
-Chain 2 Iteration:  500 / 2000 [ 25%]  (Warmup) 
-Chain 3 Iteration:  500 / 2000 [ 25%]  (Warmup) 
-Chain 1 Iteration:  600 / 2000 [ 30%]  (Warmup) 
-Chain 2 Iteration:  600 / 2000 [ 30%]  (Warmup) 
-Chain 3 Iteration:  600 / 2000 [ 30%]  (Warmup) 
-Chain 4 Iteration:  500 / 2000 [ 25%]  (Warmup) 
-Chain 1 Iteration:  700 / 2000 [ 35%]  (Warmup) 
-Chain 2 Iteration:  700 / 2000 [ 35%]  (Warmup) 
-Chain 3 Iteration:  700 / 2000 [ 35%]  (Warmup) 
-Chain 4 Iteration:  600 / 2000 [ 30%]  (Warmup) 
-Chain 1 Iteration:  800 / 2000 [ 40%]  (Warmup) 
-Chain 2 Iteration:  800 / 2000 [ 40%]  (Warmup) 
-Chain 3 Iteration:  800 / 2000 [ 40%]  (Warmup) 
-Chain 4 Iteration:  700 / 2000 [ 35%]  (Warmup) 
-Chain 4 Iteration:  800 / 2000 [ 40%]  (Warmup) 
-Chain 1 Iteration:  900 / 2000 [ 45%]  (Warmup) 
-Chain 2 Iteration:  900 / 2000 [ 45%]  (Warmup) 
-Chain 3 Iteration:  900 / 2000 [ 45%]  (Warmup) 
-Chain 4 Iteration:  900 / 2000 [ 45%]  (Warmup) 
-Chain 1 Iteration: 1000 / 2000 [ 50%]  (Warmup) 
-Chain 1 Iteration: 1001 / 2000 [ 50%]  (Sampling) 
-Chain 2 Iteration: 1000 / 2000 [ 50%]  (Warmup) 
-Chain 2 Iteration: 1001 / 2000 [ 50%]  (Sampling) 
-Chain 3 Iteration: 1000 / 2000 [ 50%]  (Warmup) 
-Chain 3 Iteration: 1001 / 2000 [ 50%]  (Sampling) 
-Chain 4 Iteration: 1000 / 2000 [ 50%]  (Warmup) 
-Chain 4 Iteration: 1001 / 2000 [ 50%]  (Sampling) 
-Chain 1 Iteration: 1100 / 2000 [ 55%]  (Sampling) 
-Chain 2 Iteration: 1100 / 2000 [ 55%]  (Sampling) 
-Chain 3 Iteration: 1100 / 2000 [ 55%]  (Sampling) 
-Chain 3 Iteration: 1200 / 2000 [ 60%]  (Sampling) 
-Chain 4 Iteration: 1100 / 2000 [ 55%]  (Sampling) 
-Chain 1 Iteration: 1200 / 2000 [ 60%]  (Sampling) 
-Chain 2 Iteration: 1200 / 2000 [ 60%]  (Sampling) 
-Chain 3 Iteration: 1300 / 2000 [ 65%]  (Sampling) 
-Chain 4 Iteration: 1200 / 2000 [ 60%]  (Sampling) 
-Chain 1 Iteration: 1300 / 2000 [ 65%]  (Sampling) 
-Chain 2 Iteration: 1300 / 2000 [ 65%]  (Sampling) 
-Chain 3 Iteration: 1400 / 2000 [ 70%]  (Sampling) 
-Chain 4 Iteration: 1300 / 2000 [ 65%]  (Sampling) 
-Chain 1 Iteration: 1400 / 2000 [ 70%]  (Sampling) 
-Chain 2 Iteration: 1400 / 2000 [ 70%]  (Sampling) 
-Chain 4 Iteration: 1400 / 2000 [ 70%]  (Sampling) 
-Chain 1 Iteration: 1500 / 2000 [ 75%]  (Sampling) 
-Chain 3 Iteration: 1500 / 2000 [ 75%]  (Sampling) 
-Chain 4 Iteration: 1500 / 2000 [ 75%]  (Sampling) 
-Chain 1 Iteration: 1600 / 2000 [ 80%]  (Sampling) 
-Chain 2 Iteration: 1500 / 2000 [ 75%]  (Sampling) 
-Chain 3 Iteration: 1600 / 2000 [ 80%]  (Sampling) 
-Chain 4 Iteration: 1600 / 2000 [ 80%]  (Sampling) 
-Chain 1 Iteration: 1700 / 2000 [ 85%]  (Sampling) 
-Chain 2 Iteration: 1600 / 2000 [ 80%]  (Sampling) 
-Chain 3 Iteration: 1700 / 2000 [ 85%]  (Sampling) 
-Chain 4 Iteration: 1700 / 2000 [ 85%]  (Sampling) 
-Chain 1 Iteration: 1800 / 2000 [ 90%]  (Sampling) 
-Chain 2 Iteration: 1700 / 2000 [ 85%]  (Sampling) 
-Chain 3 Iteration: 1800 / 2000 [ 90%]  (Sampling) 
-Chain 4 Iteration: 1800 / 2000 [ 90%]  (Sampling) 
-Chain 1 Iteration: 1900 / 2000 [ 95%]  (Sampling) 
-Chain 2 Iteration: 1800 / 2000 [ 90%]  (Sampling) 
-Chain 3 Iteration: 1900 / 2000 [ 95%]  (Sampling) 
-Chain 4 Iteration: 1900 / 2000 [ 95%]  (Sampling) 
-Chain 1 Iteration: 2000 / 2000 [100%]  (Sampling) 
-Chain 2 Iteration: 1900 / 2000 [ 95%]  (Sampling) 
-Chain 3 Iteration: 2000 / 2000 [100%]  (Sampling) 
-Chain 4 Iteration: 2000 / 2000 [100%]  (Sampling) 
-Chain 1 finished in 2.3 seconds.
-Chain 3 finished in 2.3 seconds.
-Chain 4 finished in 2.2 seconds.
-Chain 2 Iteration: 2000 / 2000 [100%]  (Sampling) 
+<pre><code>Chain 1 finished in 2.3 seconds.
 Chain 2 finished in 2.4 seconds.
+Chain 4 finished in 2.4 seconds.
+Chain 3 finished in 2.5 seconds.
 
 All 4 chains finished successfully.
-Mean chain execution time: 2.3 seconds.
-Total execution time: 2.5 seconds.</code></pre>
+Mean chain execution time: 2.4 seconds.
+Total execution time: 2.6 seconds.</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_direct)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -982,21 +719,21 @@ Formula: L ~ A1
 
 Regression Coefficients:
              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-L_Intercept     -0.06      0.05    -0.14     0.03 1.00     5896     2561
-A2_Intercept     0.00      0.04    -0.08     0.09 1.00     5275     3389
-Y_Intercept     -0.06      0.07    -0.19     0.07 1.00     3366     3040
-L_A1             1.04      0.06     0.92     1.16 1.00     6381     3189
-A2_A1           -2.83      0.12    -3.07    -2.59 1.00     2897     3094
-A2_L             0.50      0.03     0.44     0.57 1.00     3830     3360
-Y_A1             0.95      0.09     0.78     1.12 1.00     3294     3335
-Y_A2            -2.92      0.09    -3.11    -2.74 1.00     3355     3143
-Y_L             -2.00      0.02    -2.04    -1.95 1.00     4731     3200
-Y_A1:A2         -0.25      0.27    -0.79     0.29 1.00     5468     3054
+L_Intercept     -0.06      0.05    -0.15     0.03 1.00     5199     3225
+A2_Intercept     0.00      0.05    -0.09     0.09 1.00     5676     2987
+Y_Intercept      9.94      0.07     9.82    10.07 1.00     2978     2936
+L_A1             1.04      0.06     0.92     1.17 1.00     5424     3241
+A2_A1           -2.83      0.13    -3.08    -2.58 1.00     2437     2966
+A2_L             0.50      0.03     0.44     0.57 1.00     3249     3052
+Y_A1             0.95      0.09     0.77     1.12 1.00     2403     2728
+Y_A2            -2.92      0.10    -3.11    -2.73 1.00     2937     2915
+Y_L             -2.00      0.02    -2.05    -1.95 1.00     3521     3206
+Y_A1:A2         -0.25      0.29    -0.84     0.31 1.00     4778     3432
 
 Further Distributional Parameters:
         Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-sigma_L     1.42      0.02     1.38     1.47 1.00     6049     2862
-sigma_Y     1.41      0.02     1.37     1.45 1.00     6254     3244
+sigma_L     1.42      0.02     1.38     1.47 1.00     4393     2804
+sigma_Y     1.41      0.02     1.36     1.46 1.00     5205     3063
 
 Draws were sampled using sample(hmc). For each parameter, Bulk_ESS
 and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -1228,58 +965,58 @@ scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
 <tr class="odd">
 <td style="text-align: left;">total effect A1</td>
 <td style="text-align: right;">0.3257348</td>
-<td style="text-align: right;">0.2137118</td>
-<td style="text-align: right;">-0.0651970</td>
-<td style="text-align: right;">0.4914024</td>
+<td style="text-align: right;">0.2219661</td>
+<td style="text-align: right;">-0.0601195</td>
+<td style="text-align: right;">0.5047605</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">joint effect always - never</td>
 <td style="text-align: right;">-4.6001748</td>
-<td style="text-align: right;">-4.3153813</td>
-<td style="text-align: right;">-4.8170023</td>
-<td style="text-align: right;">-3.8122229</td>
+<td style="text-align: right;">-4.3157444</td>
+<td style="text-align: right;">-4.8158236</td>
+<td style="text-align: right;">-3.8104642</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">joint effect early use</td>
 <td style="text-align: right;">-1.1001748</td>
-<td style="text-align: right;">-1.1371020</td>
-<td style="text-align: right;">-1.3887272</td>
-<td style="text-align: right;">-0.8790293</td>
+<td style="text-align: right;">-1.1365596</td>
+<td style="text-align: right;">-1.3962049</td>
+<td style="text-align: right;">-0.8839994</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">joint effect late use</td>
 <td style="text-align: right;">-3.0001748</td>
-<td style="text-align: right;">-2.9223260</td>
-<td style="text-align: right;">-3.0968575</td>
-<td style="text-align: right;">-2.7523442</td>
+<td style="text-align: right;">-2.9251223</td>
+<td style="text-align: right;">-3.0979420</td>
+<td style="text-align: right;">-2.7480792</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">direct effect always - never</td>
 <td style="text-align: right;">-3.6001748</td>
-<td style="text-align: right;">-2.2310835</td>
-<td style="text-align: right;">-2.6888009</td>
-<td style="text-align: right;">-1.7632661</td>
+<td style="text-align: right;">-2.2275346</td>
+<td style="text-align: right;">-2.6955974</td>
+<td style="text-align: right;">-1.7778516</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">direct effect early use</td>
 <td style="text-align: right;">-0.1001748</td>
-<td style="text-align: right;">0.9516240</td>
-<td style="text-align: right;">0.7852455</td>
-<td style="text-align: right;">1.1108869</td>
+<td style="text-align: right;">0.9491820</td>
+<td style="text-align: right;">0.7884349</td>
+<td style="text-align: right;">1.1102144</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">direct effect late use</td>
 <td style="text-align: right;">-3.0001748</td>
-<td style="text-align: right;">-2.9243986</td>
-<td style="text-align: right;">-3.0934262</td>
-<td style="text-align: right;">-2.7520197</td>
+<td style="text-align: right;">-2.9262275</td>
+<td style="text-align: right;">-3.0978062</td>
+<td style="text-align: right;">-2.7513584</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">direct effect A1</td>
 <td style="text-align: right;">-0.3516570</td>
-<td style="text-align: right;">0.8278960</td>
-<td style="text-align: right;">0.5762709</td>
-<td style="text-align: right;">1.0791549</td>
+<td style="text-align: right;">0.8259555</td>
+<td style="text-align: right;">0.5603612</td>
+<td style="text-align: right;">1.0852940</td>
 </tr>
 </tbody>
 </table>
@@ -1291,7 +1028,7 @@ scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
 </section>
 
 <a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a><div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-reuse"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div class="quarto-appendix-contents"><div><a rel="license" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></div></div></section><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@article{junker2024,
-  author = {L., Schoedel, R., \&amp; Pargent, F. , Junker},
+  author = {Junker, Lukas and Schoedel, Ramona and Pargent, Florian},
   title = {Towards a {Clearer} {Understanding} of {Causal} {Estimands:}
     {The} {Importance} of {Joint} {Effects} in {Longitudinal} {Designs}
     with {Time-Varying} {Treatments.}},
@@ -1302,10 +1039,9 @@ scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
   langid = {en}
 }
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-junker2024" class="csl-entry quarto-appendix-citeas" role="listitem">
-L., Schoedel, R., &amp; Pargent, F., Junker. 2024. <span>“Towards a
-Clearer Understanding of Causal Estimands: The Importance of Joint
-Effects in Longitudinal Designs with Time-Varying Treatments.”</span>
-<em>PsyArXiv</em>. <a href="https://doi.org/10.31234/osf.io/zmh5a">https://doi.org/10.31234/osf.io/zmh5a</a>.
+Junker, L., Schoedel, R., &amp; Pargent, F. (2024). Towards a Clearer
+Understanding of Causal Estimands: The Importance of Joint Effects in
+Longitudinal Designs with Time-Varying Treatments. <em>PsyArXiv</em>. <a href="https://doi.org/10.31234/osf.io/zmh5a">https://doi.org/10.31234/osf.io/zmh5a</a>
 </div></div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
