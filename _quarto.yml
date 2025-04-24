@@ -37,6 +37,7 @@ author:
       - LMU Munich
 
 license: "CC BY"
+csl: apa.csl
 
 format:
   html:
@@ -46,7 +47,6 @@ format:
     citation:
       type: article-journal
       title: "Towards a Clearer Understanding of Causal Estimands: The Importance of Joint Effects in Longitudinal Designs with Time-Varying Treatments."
-      author: "Junker, L., Schoedel, R., & Pargent, F."
       id: "junker2024"
       container-title: "PsyArXiv"
       doi: "10.31234/osf.io/zmh5a"
