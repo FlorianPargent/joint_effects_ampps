@@ -314,7 +314,7 @@ dat <- data.frame(A1, A2, L, Y)
 
 In the hypothetical RCT, there was no randomization at $t = 2$. However, we can still estimate causal effects using our knowledge of the DAG. Causal effects can be retrieved under the assumptions of consistency, exchangeability, and positivity.
 
-Different statistical models are required to estimate various total, joint, and direct effects. To estimate the joint effect, we ensure exchangeability by leveraging the property that, given $L$, $A_2$ is independent of $U$: $P(A_2 = a_2 | L, U) = P(A_2 = a_2 | L)$.
+Different statistical models are required to estimate various total, joint, and direct effects. To estimate the joint effect, we ensure exchangeability by leveraging the property that, given $L$ and $A_1$, $A_2$ is independent of $U$: $P(A_2 = a_2 | A_1, L, U) = P(A_2 = a_2 | A_1, L)$.
 
 
 ```{r}

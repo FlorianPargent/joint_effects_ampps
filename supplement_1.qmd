@@ -184,7 +184,7 @@ dat <- data.frame(A1, A2, L, Y)
 
 ## Fit a statistical model with brms
 
-We now want to demonstrate how one could use the sample we just "collected" to estimate the expected potential outcomes we specified earlier. Potential Outcomes adn causal effects can be retrieved under the assumptions of consistency, exchangeability and positivity. For treatment regimes with interventions at both time points, we ensure exchangeability by leveraging the property that, given $L$, $A_2$ is independent of $U$: $P(A_2 = a_2 | L, U) = P(A_2 = a_2 | L)$.
+We now want to demonstrate how one could use the sample we just "collected" to estimate the expected potential outcomes we specified earlier. Potential Outcomes adn causal effects can be retrieved under the assumptions of consistency, exchangeability and positivity. For treatment regimes with interventions at both time points, we ensure exchangeability by leveraging the property that, given $L$ and $A_1$, $A_2$ is independent of $U$: $P(A_2 = a_2 | A_1, L, U) = P(A_2 = a_2 | A_1, L)$.
 
 For estimation, we use Bayesian regression models fit with the {brms} package to compute the parametric g-formula. The correctly specified regression model based on our assumed data generating process looks as follows:
 
